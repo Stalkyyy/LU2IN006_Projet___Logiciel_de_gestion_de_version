@@ -1,0 +1,9 @@
+Ceci
+est
+un
+test
+de
+la
+fonction
+ftol
+:D

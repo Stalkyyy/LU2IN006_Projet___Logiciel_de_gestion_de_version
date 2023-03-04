@@ -1,3 +1,5 @@
 *.o
 main_test
-.vscode
+cellList_test
+sha256_test
+test_ltof.txt
