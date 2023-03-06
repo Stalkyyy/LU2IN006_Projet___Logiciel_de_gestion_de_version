@@ -95,5 +95,26 @@ int main(){
     freeList(l_ftol);
     freeList(l_stol);
     freeList(l);
+
+
+    //===============================================================================
+
+
+    printf("\n");
+
+    List* test = listdir("/home/deniz");
+	ltof(test, "test_listdir.txt");
+
+	printf("%d\n", file_exists("cellLt.c"));
+
+	cp("copie.txt", "cellList.c");
+
+	printf("%s\n", hashToPath("flkaejfldskjgldakgj"));
+
+	blobFile("copie.txt");
+    printf("\n");
+	
+	free(test);
+
 	return 0;
 }

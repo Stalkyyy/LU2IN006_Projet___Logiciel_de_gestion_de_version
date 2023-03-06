@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <dirent.h>
+#include <unistd.h>
 #include "cellList.h"
 
 List* initList(){
@@ -180,4 +182,103 @@ void freeList(List *l){
     }
 
     free(l);
+}
+
+
+//==================================================================================================
+
+
+List* listdir(char* root_dir){
+    DIR* dp = opendir(root_dir);
+    struct dirent *ep;
+    List* l = initList();
+    if(dp != NULL)
+    {
+        while ((ep = readdir(dp)) != NULL)
+        {
+            insertFirst(l, buildCell(ep->d_name));
+        }
+    }
+
+    return l;
+}
+
+int file_exists(char *file){
+    char *cur_dir;
+    cur_dir=(char *)malloc(100*sizeof(char));
+    getcwd(cur_dir,100);
+    DIR* dp = opendir((char*)cur_dir);
+    struct dirent *ep;
+    if(dp != NULL){
+        while((ep = readdir(dp)) != NULL)
+        {
+            if(strcmp(file, ep->d_name) == 0){
+                return 1;
+            }
+        }
+    }
+    return 0;
+}
+
+void cp(char *to, char *from){
+    if(!file_exists(from)){
+        printf("Le ficiher source n'existe pas.\ns");
+        exit(1);
+    }
+
+    char* contenu = malloc(sizeof(char)*1000);
+
+    FILE *fsource = fopen(from, "r");
+    if (fsource == NULL){
+        printf("Erreur : ouverture de %s\n", to);
+        exit(1);
+    }
+
+    FILE *fdest = fopen(to, "w");
+
+
+    while(fgets(contenu, 1000, fsource) != NULL){
+        fputs(contenu, fdest);
+    }
+
+    fclose(fsource);
+    fclose(fdest);
+}
+
+char* hashToPath(char* hash){
+    int i;
+    int length = strlen(hash);
+    char* first = malloc(3*sizeof(char));
+    char* second = malloc((length - 1)*sizeof(char)); 
+
+
+    for(i = 0; i < 2; i++){
+        first[i] = hash[i];
+    }
+    first[i] = '\0';
+    int j = 0;
+    for(i = 2; i<length; i++){
+        second[j] = hash[i];
+        j++;
+    }
+    second[j] = '\0';
+
+    char* path = malloc(sizeof(char)*(strlen(first)+strlen(second)+2));
+    strcpy(path, first);
+    strcat(path, "/");
+    strcat(path, second);
+    free(first);
+    free(second);
+    return path;
+}
+
+
+void blobFile(char* file){
+    if(!file_exists("autosave")){
+         system("mkdir autosave");
+    }
+    char* new = malloc(sizeof(char)* (strlen(file)+10));
+    strcpy(new, "autosave/");
+    strcat(new, file);
+    cp(new,file);
 }
