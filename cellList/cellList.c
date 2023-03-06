@@ -200,6 +200,7 @@ List* listdir(char* root_dir){
         }
     }
 
+    closedir(dp);
     return l;
 }
 
@@ -213,10 +214,15 @@ int file_exists(char *file){
         while((ep = readdir(dp)) != NULL)
         {
             if(strcmp(file, ep->d_name) == 0){
+                free(cur_dir);
+                closedir(dp);
                 return 1;
             }
         }
     }
+
+    closedir(dp);
+    free(cur_dir);
     return 0;
 }
 
@@ -241,6 +247,7 @@ void cp(char *to, char *from){
         fputs(contenu, fdest);
     }
 
+    free(contenu);
     fclose(fsource);
     fclose(fdest);
 }
@@ -281,4 +288,5 @@ void blobFile(char* file){
     strcpy(new, "autosave/");
     strcat(new, file);
     cp(new,file);
+    free(new);
 }

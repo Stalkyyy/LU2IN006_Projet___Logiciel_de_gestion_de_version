@@ -109,11 +109,13 @@ int main(){
 
 	cp("copie.txt", "cellList.c");
 
-	printf("%s\n", hashToPath("flkaejfldskjgldakgj"));
+    char *path = hashToPath("flkaejfldskjgldakgj");
+	printf("%s\n", path);
 
 	blobFile("copie.txt");
     printf("\n");
 	
+    free(path);
 	free(test);
 
 	return 0;
