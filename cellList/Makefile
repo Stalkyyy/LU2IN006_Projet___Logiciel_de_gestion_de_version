@@ -1,7 +1,7 @@
 CC = gcc
 CFLAGS = -Wall -ggdb
 
-OBJFILES_CELLIST = cellList.o cellListTest.o
+OBJFILES_CELLIST = cellList.o cellListTest.o ../sha256/sha256.o
 
 all : cellList_test
 

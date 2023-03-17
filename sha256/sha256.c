@@ -27,10 +27,10 @@ char* sha256file(char* file){
     /* 
         Création du fichier temporaire 
     */
-    static char template[] = "/tmp/tmp_XXXXXX";
+    static char template[] = "/tmp/myfileXXXXXX";
     char tempName[1000];
     strcpy(tempName, template);
-    mkstemp(tempName);
+    int fd = mkstemp(tempName);
 
 
     /*
@@ -44,27 +44,13 @@ char* sha256file(char* file){
         exit(1);
     }
 
-
-    FILE *tmp = fopen(tempName, "r");
-    if (tmp == NULL){
-        printf("Erreur : ouverture du fichier temporaire.\n");
-        exit(1);
-    }
-
     char *hash = (char *)(malloc(sizeof(char)*SHA256_LENGTH + 1));
-    if(fgets(hash, SHA256_LENGTH + 1, tmp) == NULL){
+    if(read(fd, hash, SHA256_LENGTH) == -1){
         printf("Erreur : lecture du fichier temporaire.\n");
         exit(1);
     }
+    hash[64] = '\0';
 
-
-    /*
-        Supression du fichier temporaire.
-    */
-    fclose(tmp);
-    snprintf(linuxCommand, 1024, "rm %s", tempName);
-    if (system(linuxCommand) != 0)
-        printf("Warning : Supression du fichier temporaire ratée.\n");
-
+    close(fd);
     return hash;
 }

@@ -10,3 +10,4 @@ work_FileTree_test : $(OBJFILES_WORK)
 
 clean : 
 	rm -f $(OBJFILES_WORK) work_FileTree_test test_wttf.txt
+	rm -r autosave

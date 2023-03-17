@@ -4,6 +4,7 @@
 #include <dirent.h>
 #include <unistd.h>
 #include "cellList.h"
+#include "../sha256/sha256.h"
 
 List* initList(){
     List* l = (List *)malloc(sizeof(List));
@@ -282,12 +283,23 @@ char* hashToPath(char* hash){
 
 
 void blobFile(char* file){
-    if(!file_exists("autosave")){
-         system("mkdir autosave");
+    char rep[12];
+    char *hash = sha256file(file);
+    snprintf(rep, 12, "autosave/%c%c", hash[0], hash[1]);
+
+    if(!file_exists(rep)){
+        char linuxCommand[21];
+        snprintf(linuxCommand, 21, "mkdir -p autosave/%c%c", hash[0], hash[1]);
+        system(linuxCommand);
     }
-    char* new = malloc(sizeof(char)* (strlen(file)+10));
+
+    char *path = hashToPath(hash);
+    free(hash);
+
+    char* new = malloc(sizeof(char)*(strlen(path)+9));
     strcpy(new, "autosave/");
-    strcat(new, file);
+    strcat(new, path);
     cp(new,file);
     free(new);
+    free(path);
 }

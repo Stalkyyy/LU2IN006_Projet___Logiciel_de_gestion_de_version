@@ -37,7 +37,6 @@ void freeWorkTree(WorkTree *wt);
 
 char* blobWorkTree(WorkTree *wt);
 char* saveWorkTree(WorkTree *wt, char *path);
-char* saveWorkTree(WorkTree *wt, char *path);
 void restoreWorkTree(WorkTree *wt, char *path);
 
 
