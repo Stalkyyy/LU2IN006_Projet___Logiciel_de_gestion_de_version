@@ -68,14 +68,5 @@ int main(){
     free(hashTree);
     freeWorkTree(wt);
 
-
-
-    WorkTree *wtTest = initWorkTree();
-    appendWorkTree(wtTest, "Makefile", "None", 0);
-    appendWorkTree(wtTest, "work_FileTree.c", "None", 0);
-    appendWorkTree(wtTest, "work_FileTree.h", "None", 0);
-    appendWorkTree(wtTest, "work_FileTreeTest.c", "None", 0);
-    char *hash2 = saveWorkTree(wt, "./");
-
     return 0;
 }
