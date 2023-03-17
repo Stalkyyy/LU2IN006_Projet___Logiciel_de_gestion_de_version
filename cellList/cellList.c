@@ -78,6 +78,7 @@ int sizeCharList(List* L){
 char* ltos(List* L){
     Cell *c = *L;
     char *str = (char *)malloc(sizeof(char)*sizeCharList(L));
+    strcpy(str, "");
 
     while(c->next){
         strcat(str, ctos(c));
