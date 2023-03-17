@@ -9,4 +9,4 @@ work_FileTree_test : $(OBJFILES_WORK)
 	$(CC) $(CFLAGS) -o work_FileTree_test $(OBJFILES_WORK)
 
 clean : 
-	rm -f $(OBJFILES_WORK) work_FileTree_test 
+	rm -f $(OBJFILES_WORK) work_FileTree_test test_wttf.txt

@@ -8,8 +8,12 @@ typedef struct{
     int mode;
 } WorkFile;
 
+
+/*
+    Nous avons préféré faire un tableau de pointure de WorkFile ici.
+*/
 typedef struct{
-    WorkFile *tab;
+    WorkFile **tab;
     int size;
     int n;
 } WorkTree;
@@ -30,6 +34,11 @@ WorkTree* stwt(char *s);
 int wttf(WorkTree *wt, char *file);
 WorkTree* ftwt(char *file);
 void freeWorkTree(WorkTree *wt);
+
+char* blobWorkTree(WorkTree *wt);
+char* saveWorkTree(WorkTree *wt, char *path);
+char* saveWorkTree(WorkTree *wt, char *path);
+void restoreWorkTree(WorkTree *wt, char *path);
 
 
 #endif

@@ -51,11 +51,19 @@ void freeWorkFile(WorkFile *wf){
 char* wfts(WorkFile *wf){
     int length = strlen(wf->name) + strlen(wf->hash) + 6;
     char *str = (char *)malloc(sizeof(char)*length);
+    if(str == NULL){
+        printf("Erreur : Allocation str wtfs()\n");
+        exit(1);
+    }
 
-    char *mode = (char *)malloc(sizeof(char)*3);
+    char *mode = (char *)malloc(sizeof(char)*4);
+    if(mode == NULL){
+        printf("Erreur : Allocation mode (str) wtts()\n");
+        exit(1);
+    }
     sprintf(mode, "%d", wf->mode);
     
-    strcat(str, wf->name);
+    strcpy(str, wf->name);
     strcat(str, "\t");
     strcat(str, wf->hash);
     strcat(str, "\t");
@@ -82,6 +90,10 @@ WorkFile* stwf(char *ch){
 //===============================================================================
 
 
+/*
+    Nous avons préféré faire un tableau de POINTEURS de Workfile.
+    En effet, nous avions déjà fait une fonction freeWorkFile.
+*/
 WorkTree* initWorkTree(){
     WorkTree *wt = (WorkTree *)malloc(sizeof(WorkTree));
     if (wt == NULL){
@@ -89,7 +101,7 @@ WorkTree* initWorkTree(){
         exit(1);
     }
 
-    wt->tab = (WorkFile *)malloc(sizeof(WorkFile)*MAX_TAB_WF);
+    wt->tab = (WorkFile **)malloc(sizeof(WorkFile*)*MAX_TAB_WF);
     if (wt->tab == NULL){
         printf("Erreur : allocation tableau Worktree\n");
         exit(1);
@@ -103,12 +115,9 @@ WorkTree* initWorkTree(){
 
 void freeWorkTree(WorkTree *wt){
     for(int i = 0; i < wt->n; i++){
-        WorkFile wf = wt->tab[i];
-        free(wf.name);
-        free(wf.hash);
+        freeWorkFile(wt->tab[i]);
     }
         
-
     free(wt->tab);
     free(wt);
 }
@@ -116,7 +125,7 @@ void freeWorkTree(WorkTree *wt){
 
 int inWorkTree(WorkTree *wt, char *name){
     for(int i = 0; i < wt->n; i++){
-        if (strcmp((wt->tab[i]).name, name) == 0)
+        if (strcmp((wt->tab[i])->name, name) == 0)
             return i;
     }
 
@@ -125,8 +134,7 @@ int inWorkTree(WorkTree *wt, char *name){
 
 
 int appendWorkTree(WorkTree *wt, char *name, char *hash, int mode){
-
-    if( wt->n == wt->size){
+    if(wt->n == wt->size){
         printf("Tableau de WorkFile rempli !\n");
         return 1;
     }
@@ -139,7 +147,98 @@ int appendWorkTree(WorkTree *wt, char *name, char *hash, int mode){
     wf->hash = strdup(hash);
     wf->mode = mode;
 
-    wt->tab[wt->n] = *wf;
+    wt->tab[wt->n] = wf;
     wt->n++;
     return 0;
+}
+
+
+char* wtts(WorkTree *wt){
+    int sizeStr = 0;
+    char **tab = (char**)malloc(sizeof(char *)*wt->n);
+    if(tab == NULL){
+        printf("Erreur : Allocation tab wtts()\n");
+        exit(1);
+    }
+
+    /*
+        Cette boucle permet de stocker chaque chaine de caractère des workFile, ainsi qu'avoir la taille du string sortant.
+    */
+    for(int i = 0; i < wt->n; i++){
+        char* strWf = wfts(wt->tab[i]);
+        sizeStr += strlen(strWf) + 1;
+        tab[i] = strWf;
+    }
+
+    char *str = (char*)malloc(sizeof(char)*(sizeStr + 1));
+    if(str == NULL){
+        printf("Erreur : Allocation str wtts()\n");
+        exit(1);
+    }
+
+    strcpy(str, "");
+
+    for(int i = 0; i < wt->n; i++){
+        strcat(str, tab[i]);
+        strcat(str, "\n");
+        free(tab[i]);
+    }
+
+    free(tab);
+    return str;
+}
+
+
+WorkTree* stwt(char *s){
+    WorkTree *wt = initWorkTree();
+    char *tok = strtok(s, "\t\n");
+
+    while((tok != NULL) && (wt->n < wt->size)){
+        char *name = tok;
+        char *hash = strtok(NULL, "\t\n");
+        int mode = atoi(strtok(NULL, "\t\n"));
+
+        appendWorkTree(wt, name, hash, mode);
+        tok = strtok(NULL, "\t\n");
+    }
+
+    return wt;
+}
+
+
+int wttf(WorkTree *wt, char *file){
+    char *str = wtts(wt);
+
+    FILE *f = fopen(file, "w");
+    if(f == NULL){
+        printf("Erreur : ouverture de %s (wttf)\n", file);
+        exit(1);
+    }
+
+    fprintf(f, "%s", str);
+
+    free(str);
+    fclose(f);
+    return 0;
+}
+
+
+WorkTree* ftwt(char* file){
+    WorkTree *wt = initWorkTree();
+    FILE *f = fopen(file, "r");
+    if(f == NULL){
+        printf("Erreur : ouverture de %s (ftwt)\n", file);
+        exit(1);
+    }
+
+    char name[256];
+    char hash[256];
+    int mode;
+
+    while((EOF != fscanf(f, "%s\t%s\t%d\n", name, hash, &mode)) && (wt->n < wt->size)){
+        appendWorkTree(wt, name, hash, mode);
+    }
+
+    fclose(f);
+    return wt;
 }
