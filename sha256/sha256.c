@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include <string.h>
 #include "sha256.h"
+#include "../cellList/cellList.h"
 
 int hashFile(char* source, char* dest){
     char linuxCommand[256];
@@ -27,7 +28,12 @@ char* sha256file(char* file){
     /* 
         Création du fichier temporaire 
     */
-    static char template[] = "/tmp/myfileXXXXXX";
+
+    if(!file_exists("tmp")){
+        system("mkdir tmp");
+    }
+
+    static char template[] = "./tmp/sha256_XXXXXX";
     char tempName[1000];
     strcpy(tempName, template);
     int fd = mkstemp(tempName);
@@ -52,5 +58,9 @@ char* sha256file(char* file){
     hash[64] = '\0';
 
     close(fd);
+
+    snprintf(linuxCommand, 2048, "rm -f %s", tempName+2);
+    system(linuxCommand);
+
     return hash;
 }

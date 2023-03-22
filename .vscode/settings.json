@@ -4,7 +4,8 @@
         "unistd.h": "c",
         "celllist.h": "c",
         "stdlib.h": "c",
-        "typeinfo": "c"
+        "typeinfo": "c",
+        "sha256.h": "c"
     },
     "C_Cpp.errorSquiggles": "disabled"
 }
