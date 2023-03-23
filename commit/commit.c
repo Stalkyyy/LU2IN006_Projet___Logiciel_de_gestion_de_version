@@ -181,7 +181,7 @@ char* commitGet(Commit *c, char *key){
             return NULL;
         
         if(strcmp(c->T[index]->key, key) == 0)
-            return c->T[index]->key;
+            return c->T[index]->value;
     }
 
     return NULL;
