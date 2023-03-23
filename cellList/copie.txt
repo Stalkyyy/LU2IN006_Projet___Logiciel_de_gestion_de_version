@@ -198,10 +198,6 @@ List* listdir(char* root_dir){
     {
         while ((ep = readdir(dp)) != NULL)
         {
-            /*
-             * On teste si on a pas les dossiers ./ et ../
-             * En effet, ça les rajouterait dans la liste.
-            */
             if(strcmp(ep->d_name, ".") != 0 && strcmp(ep->d_name, "..") != 0)
                 insertFirst(l, buildCell(ep->d_name));
         }
@@ -255,7 +251,7 @@ int file_exists(char *file){
 
 void cp(char *to, char *from){
     if(!file_exists(from)){
-        printf("Le fichier source n'existe pas (%s)\n", from);
+        printf("Le fichier source n'existe pas.\n");
         exit(1);
     }
 
@@ -281,15 +277,29 @@ void cp(char *to, char *from){
 }
 
 char* hashToPath(char* hash){
-    char *path = (char*)malloc(sizeof(char)*(strlen(hash)+2));
-    char rep[3];
-    rep[0] = hash[0];
-    rep[1] = hash[1];
-    rep[2] = '\0';
+    int i;
+    int length = strlen(hash);
+    char* first = malloc(3*sizeof(char));
+    char* second = malloc((length - 1)*sizeof(char)); 
 
-    strcpy(path, rep);
+
+    for(i = 0; i < 2; i++){
+        first[i] = hash[i];
+    }
+    first[i] = '\0';
+    int j = 0;
+    for(i = 2; i<length; i++){
+        second[j] = hash[i];
+        j++;
+    }
+    second[j] = '\0';
+
+    char* path = malloc(sizeof(char)*(strlen(first)+strlen(second)+2));
+    strcpy(path, first);
     strcat(path, "/");
-    strcat(path, hash+2);
+    strcat(path, second);
+    free(first);
+    free(second);
     return path;
 }
 
