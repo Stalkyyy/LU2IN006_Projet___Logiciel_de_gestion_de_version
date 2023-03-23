@@ -4,6 +4,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
+
 #include "work_FileTree.h"
 #include "../sha256/sha256.h"
 #include "../cellList/cellList.h"
@@ -232,11 +233,11 @@ WorkTree* ftwt(char* file){
         exit(1);
     }
 
-    char name[256];
-    char hash[256];
+    char name[512];
+    char hash[512];
     int mode;
 
-    while((EOF != fscanf(f, "%s\t%s\t%d\n", name, hash, &mode)) && (wt->n < wt->size)){
+    while((EOF != fscanf(f, "%[^\t]\t%[^\t]\t%d\n", name, hash, &mode)) && (wt->n < wt->size)){
         appendWorkTree(wt, name, hash, mode);
     }
 
@@ -256,7 +257,7 @@ char* blobWorkTree(WorkTree *wt){
         system("mkdir tmp");
     }
 
-    static char template[] = "./tmp/myfileXXXXXX";
+    static char template[] = "./tmp/blobWorkTree_XXXXXX";
     char fname[1000];
     strcpy(fname, template);
     int fd = mkstemp(fname);
