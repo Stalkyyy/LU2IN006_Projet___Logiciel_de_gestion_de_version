@@ -54,5 +54,12 @@ int main(){
     freeCommit(c3);
 
 
+    initRefs();
+    createUpdateRef("master", "gkjdshgkjfdk");
+    char* ref = getRef("sfjgldfj");
+    if(ref != NULL)
+        printf("%s\n", ref);
+    free(ref);
+    deleteRef("HEAD");
 
 }

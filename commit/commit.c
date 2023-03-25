@@ -32,9 +32,9 @@ void freeKeyVal(kvp* k){
 
 char* kvts(kvp* k){
     char* res = malloc(sizeof(char)*(strlen(k->value) + strlen(k->key)+ 2));
-    res = strcpy(res, k->key);
-    res = strcat(res, ":");
-    res = strcat(res, k->value);
+    strcpy(res, k->key);
+    strcat(res, ":");
+    strcat(res, k->value);
     return res;
 }
 
@@ -46,14 +46,14 @@ kvp* stkv(char* str){
                 printf("Erreur d'allocation (stkv)\n");
                 exit(1);
             }
-            key  = strncpy(key, str, i);
+            strncpy(key, str, i);
             key[i] = '\0';
             char* val = malloc(sizeof(char)* (strlen(str) - i));
             if (val == NULL){
                 printf("Erreur d'allocation (stkv)\n");
                 exit(1);
             }
-            val = strcpy(val, str+i+1);
+            strcpy(val, str+i+1);
             kvp* kv = createKeyVal(key,val);
             free(key);
             free(val);
@@ -187,10 +187,10 @@ char* cts(Commit* c){
     strcpy(str, "");
     while(i<c->size && j < c->n){
         if(c->T[i] != NULL){
-            str = strcat(str, c->T[i]->key);
-            str = strcat(str, ":");
-            str = strcat(str, c->T[i]->value);
-            str = strcat(str, "\n");
+            strcat(str, c->T[i]->key);
+            strcat(str, ":");
+            strcat(str, c->T[i]->value);
+            strcat(str, "\n");
 
             j++;
         }
@@ -261,7 +261,7 @@ char* blobCommit(Commit *c){
 
     
     /*
-     * Même fonction que BlobFile, à la différence près qu'on rajoute ".t" à la fin du nom de l'instantané.
+     * Même fonction que BlobFile, à la différence près qu'on rajoute ".c" à la fin du nom de l'instantané.
     */
     char *hash = sha256file(fname);
     char rep[12];
@@ -299,3 +299,134 @@ char* blobCommit(Commit *c){
 
     return hash;
 }
+
+//Exercice 7
+
+void initRefs(){
+    if(!file_exists(".refs")){
+        system("mkdir .refs");
+    }
+
+    system("> .refs/master");
+    system(("> .refs/HEAD"));
+}
+
+void createUpdateRef(char* ref_name, char* hash){
+    char* path = (char*)malloc(sizeof(char) * (strlen(ref_name) +7));
+    strcpy(path, ".refs/");
+    strcat(path, ref_name);
+    int taille = strlen(path) + strlen(hash) + 9;
+    char linuxCommand[1024];
+    snprintf(linuxCommand, taille , "echo %s > %s", hash, path);
+    system(linuxCommand);
+    free(path);
+}
+
+void deleteRef(char* ref_name){
+    char* path = (char*)malloc(sizeof(char) * (strlen(ref_name) +7));
+    strcpy(path, ".refs/");
+    strcat(path, ref_name);
+    int taille = strlen(path) +7;
+    char linuxCommand[1024];
+    snprintf(linuxCommand, taille, "rm -f %s", path);
+    system(linuxCommand);
+    free(path);
+}
+
+char* getRef(char* ref_name){
+    char* path = (char*)malloc(sizeof(char) * (strlen(ref_name) +7));
+    strcpy(path, ".refs/");
+    strcat(path, ref_name);
+    if(!file_exists(path)){
+        printf("Le fichier %s n'existe pas (getRef)\n", ref_name);
+        free(path);
+        return NULL;
+    }
+
+    FILE* f = fopen(path, "r");
+    if(f == NULL){
+        printf("Erreur d'ouverture de %s (getChar)\n", ref_name);
+        exit(1);
+    }
+    
+    fseek(f, 0L, SEEK_END);
+    int taille = ftell(f);
+
+
+    char* hash = (char*)malloc(sizeof(char) + (taille+1));
+    rewind(f);
+
+    fscanf(f, "%s", hash);
+    hash[taille] = '\0';
+    
+    fclose(f);
+    free(path);
+    return hash;
+}
+
+void myGitAdd(char* file_or_folder){
+    if(!file_exists(".add")){
+        system("> .add");
+    }
+    WorkTree* wt = ftwt(".add");
+
+    int mod = getChmod(file_or_folder);
+    char* hash = sha256file(file_or_folder);
+
+    appendWorkTree(wt, file_or_folder, hash, mod);
+
+    wttf(wt, ".add");
+}
+
+void myGitCommit(char* branch_name, char* message){
+    if(!file_exists(".refs")){
+        printf("Initialiser d'abord les références du projet (myGitCommit)!");
+        exit(1);
+    }
+
+    if(!file_exists(branch_name)){
+        printf("La branche n'existe pas (myGitCommit)!");
+        exit(1);
+    }
+
+    char* path = (char*)malloc(sizeof(char) * (strlen(branch_name) +7));
+    strcpy(path, ".refs/");
+    strcat(path, branch_name);
+
+    if(strcmp(getRef(".refs/HEAD"), getRef(path)) != 0){
+        printf("HEAD doit pointer sur le dernier commit de la branche (myGitCommit)!");
+        free(path);
+        exit(1);
+    }
+
+    WorkTree* wt = ftwt(".add");
+    system("rm -f .add");
+
+    char* hash = saveWorkTree(wt, ".");
+    Commit* c = createCommit(hash);
+
+    char* hashDernier = getRef(path);
+
+    if(hashDernier != NULL){
+        commitSet(c, "predecessor", hashDernier);
+    }
+    
+    if(message != NULL){
+        commitSet(c, "message", message);
+    }
+
+    char* hashBlob = blobCommit(c);
+
+    createUpdateRef(path, hashBlob);
+    createUpdateRef(".refs/HEAD", hashBlob);
+
+    free(path);
+    free(hash);
+    free(hashDernier);
+    free(hashBlob);
+
+    freeCommit(c);
+    freeWorkTree(wt);
+}
+
+//LES FONCTIONS MYGIT A TESTER!!!
