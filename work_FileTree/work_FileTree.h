@@ -10,8 +10,8 @@ typedef struct{
 
 
 /*
-    Nous avons préféré faire un tableau de pointure de WorkFile ici.
-*/
+ * Nous avons préféré faire un tableau de pointure de WorkFile ici.
+ */
 typedef struct{
     WorkFile **tab;
     int size;

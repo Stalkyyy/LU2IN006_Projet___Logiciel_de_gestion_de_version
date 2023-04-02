@@ -9,10 +9,10 @@ int hashFile(char* source, char* dest){
     char linuxCommand[256];
 
     /*
-        Ecriture de la commande utilisée.
-        Ici, on appelle sha256sum sur le fichier source. 
-        Ensuite on coupe la sortie, on ne veut que le hash, pas le nom du fichier !
-    */
+     * Ecriture de la commande utilisée.
+     * Ici, on appelle sha256sum sur le fichier source. 
+     * Ensuite on coupe la sortie, on ne veut que le hash, pas le nom du fichier !
+     */
     snprintf(linuxCommand, 256, "sha256sum %s | cut -d ' ' -f 1 > %s", source, dest);
     
     if (system(linuxCommand) != 0){
@@ -26,8 +26,8 @@ int hashFile(char* source, char* dest){
 
 char* sha256file(char* file){
     /* 
-        Création du fichier temporaire 
-    */
+     * Création du fichier temporaire 
+     */
 
     if(!file_exists("tmp")){
         system("mkdir tmp");
@@ -40,8 +40,8 @@ char* sha256file(char* file){
 
 
     /*
-        Création de la commande Linux et ensuite son exécution.
-    */
+     * Création de la commande Linux et ensuite son exécution.
+     */
     char linuxCommand[2048];
     snprintf(linuxCommand, 2048, "sha256sum %s | cut -d ' ' -f 1 > %s", file, tempName);
 

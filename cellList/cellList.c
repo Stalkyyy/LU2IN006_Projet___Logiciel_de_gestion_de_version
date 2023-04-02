@@ -25,7 +25,7 @@ Cell* buildCell(char* ch){
         exit(1);
     }
 
-    c->data = strdup(ch);
+    c->data = ch ? strdup(ch) : NULL;
     c->next = NULL;
     return c;
 }
@@ -37,8 +37,8 @@ void insertFirst(List *l, Cell* c){
 }
 
 /*
-    Rajout de cette fonction pour stol.
-*/
+ *Rajout de cette fonction pour stol.
+ */
 void insertLast(List *l, Cell *c){
     Cell *c_list = *l;
 
@@ -59,10 +59,10 @@ char* ctos(Cell *c){
 
 
 /*
-    Renvoie la somme des tailles des chaines de caractères de chaque cellule composant la liste L.
-    La taille comprend le caractère de fin '\0'. 
-        En effet, dans notre fonction ltos(), on le remplacera par le caractère '|', ou on gardera '\0'.
-*/
+ * Renvoie la somme des tailles des chaines de caractères de chaque cellule composant la liste L.
+ * La taille comprend le caractère de fin '\0'. 
+ * En effet, dans notre fonction ltos(), on le remplacera par le caractère '|', ou on gardera '\0'.
+ */
 int sizeCharList(List* L){
     Cell *c = *L;
     int size = 0;
@@ -119,9 +119,9 @@ Cell* searchList(List *L, char *str){
 
 
 /*
-    Modification, nous avons rajouté un délimiteur dans les paramètres, étant donné que l'énoncé ne donne aucune précision de comment découper la chaine de caractères.
-    De plus, on utilise la fonction insertLast() afin que le premier élément de la chaine s soit en première position de la liste.
-*/
+ * Modification, nous avons rajouté un délimiteur dans les paramètres, étant donné que l'énoncé ne donne aucune précision de comment découper la chaine de caractères.
+ * De plus, on utilise la fonction insertLast() afin que le premier élément de la chaine s soit en première position de la liste.
+ */
 List* stol(char* s, char* delim){
     List *l = initList();
     char *ptr = strtok(s, delim);
@@ -223,7 +223,7 @@ int file_exists(char *file){
     /*
      * Ici, on crée une chaine de caractère ayant le pwd + le chemin vers un fichier. 
      * Par exemple, si file == "/tmp/test/file.c", on ouvrira pwd + /tmp/test
-    */
+     */
     if(dirFile != NULL){
         char sub_str[dirFile - file];
         strncpy(sub_str, file, dirFile - file);

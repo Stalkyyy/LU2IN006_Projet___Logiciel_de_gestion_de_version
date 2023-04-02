@@ -24,8 +24,8 @@ kvp* createKeyVal(char *key, char *val){
 }
 
 void freeKeyVal(kvp *kv){
-    free(kv->key);
-    free(kv->value);
+    if(kv->key) free(kv->key);
+    if(kv->value) free(kv->value);
     free(kv);
 }
 
@@ -110,7 +110,7 @@ void freeCommit(Commit *c){
 
 /*
  * Choix de la fonction de hachage : sdbm.
-*/
+ */
 
 unsigned long hash_sdbm(char *str){
     unsigned long hash = 0;
@@ -144,7 +144,7 @@ void commitSet(Commit *c, char *key, char *value){
 /*
  * Rajout de cette fonction. Même fonctionnement que commitSet mais prend directement un kvp en paramètre.
  * Fonction utilisée pour stc.
-*/
+ */
 void commitSet_KV(Commit *c, kvp *kv){
     if(c->n >= c->size){
         printf("Le tableau est déjà rempli !\n");
@@ -181,7 +181,7 @@ char* commitGet(Commit *c, char *key){
             return NULL;
         
         if(strcmp(c->T[index]->key, key) == 0)
-            return c->T[index]->key;
+            return strdup(c->T[index]->value);
     }
 
     return NULL;
@@ -271,7 +271,7 @@ Commit* ftc(char *file){
 char* blobCommit(Commit *c){
     /*
      * Création du fichier temporaire afin d'avoir la hash du WorkTree.
-    */
+     */
     if(!file_exists("tmp")){
         system("mkdir tmp");
     }
@@ -286,7 +286,7 @@ char* blobCommit(Commit *c){
     
     /*
      * Même fonction que BlobFile, à la différence près qu'on rajoute ".c" à la fin du nom de l'instantané.
-    */
+     */
     char *hash = sha256file(fname);
     char rep[12];
     snprintf(rep, 13, "autosave/%c%c", hash[0], hash[1]);
@@ -317,9 +317,109 @@ char* blobCommit(Commit *c){
 
     /*
      * On supprime le fichier temporaire.
-    */
+     */
     snprintf(linuxCommand, 1022, "rm -f %s", fname+2);
     system(linuxCommand);
 
+    return hash;
+}
+
+
+//=====================================================================
+
+
+void initRefs(){
+    if (!file_exists(".refs")){
+        system("mkdir .refs");
+        system("touch .refs/master");
+        system("touch .refs/HEAD");
+    }
+}
+
+
+void createUpdateRef(char *ref_name, char *hash){
+    initRefs(); // Vérifie si le répertoire .refs/ existe. Le crée si besoin.
+
+    char *buff = (char *)malloc(sizeof(char) * (strlen(ref_name) + 7));
+    if(buff == NULL){
+        printf("Erreur : allocation buff (createUpdateRef)\n");
+        exit(1);
+    }
+
+    sprintf(buff, ".refs/%s", ref_name);
+
+    FILE *f = fopen(buff, "w");
+    if(f == NULL){
+        printf("Erreur : Ouverture de %s (createUpdateRef)\n", buff);
+        free(buff);
+        exit(1);
+    }
+
+    fprintf(f, "%s", hash ? hash : "");
+    fclose(f);
+    free(buff);
+}
+
+
+void deleteRef(char *ref_name){
+    char *buff = (char *)malloc(sizeof(char) * (strlen(ref_name) + 10));
+    if(buff == NULL){
+        printf("Erreur : allocation buff (deleteRef)\n");
+        exit(1);
+    }
+
+    sprintf(buff, ".refs/%s", ref_name);
+
+    if(file_exists(buff)){
+        sprintf(buff, "rm .refs/%s", ref_name);
+        system(buff);
+    } else {
+        printf("La référence %s n'existe pas.\n", ref_name);
+    }
+
+    free(buff);
+}
+
+
+char* getRef(char *ref_name){
+    char *buff = (char *)malloc(sizeof(char) * (strlen(ref_name) + 7));
+    if(buff == NULL){
+        printf("Erreur : allocation buff (getRef)\n");
+        exit(1);
+    }
+
+    sprintf(buff, ".refs/%s", ref_name);
+
+    if(!file_exists(buff)){
+        printf("La référence %s n'existe pas.\n", ref_name);
+        free(buff);
+        return NULL;
+    }
+
+
+    char *hash = (char *)malloc(sizeof(char) * 256);
+    if(hash == NULL){
+        printf("Erreur : allocation hash (getRef)\n");
+        free(buff);
+        exit(1);
+    }
+
+    FILE *f = fopen(buff, "r");
+    if(f == NULL){
+        printf("Erreur : ouverture de %s (getRef)\n", buff);
+        free(buff); free(hash);
+        exit(1);
+    }
+
+
+    if(fgets(hash, 256, f) == NULL){
+        fclose(f);
+        free(buff);
+        free(hash);
+        return NULL;
+    }
+
+    fclose(f);
+    free(buff);
     return hash;
 }

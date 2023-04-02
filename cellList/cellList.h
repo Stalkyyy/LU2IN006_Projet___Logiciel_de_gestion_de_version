@@ -24,6 +24,7 @@ void ltof(List *L, char *path);
 List* ftol(char *path);
 
 void insertLast(List *l, Cell *c);
+
 void freeList(List *l);
 
 List* listdir(char* root_dir);

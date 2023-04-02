@@ -80,7 +80,23 @@ int main(){
 
     char *hash = blobCommit(c3);
 
-    free(hash);
+    //free(hash);
     freeCommit(c3);
+
+
+    //=====================================================================
+
+
+    initRefs();
+    createUpdateRef("newRef", hash);
+
+    free(hash);
+
+    char *hash2 = getRef("newRef");
+    printf("\nnewRef : %s\n", hash2);
+    
+    free(hash2);
+    deleteRef("newRef");
+
     return 0;
 }

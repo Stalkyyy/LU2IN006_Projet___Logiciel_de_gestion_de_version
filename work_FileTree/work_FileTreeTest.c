@@ -9,7 +9,6 @@
 #include "../cellList/cellList.h"
 
 int main(){
-    /*
     WorkFile *wf = createWorkFile("../cellList/cellList.c");
 
     wf->hash = strdup("lk/fhsjglkdfqsjglsdf");
@@ -75,7 +74,7 @@ int main(){
     free(hashTree);
 
     freeWorkTree(wt);
-    */
+    
 
 
 
@@ -86,9 +85,7 @@ int main(){
     //appendWorkTree(wtTest, "work_FileTree/work_FileTree.c", NULL, 0);
     //appendWorkTree(wtTest, "work_FileTree/work_FileTree.h", NULL, 0);
     //appendWorkTree(wtTest, "work_FileTree/work_FileTreeTest.c", NULL, 0);
-    
-    appendWorkTree(wtTest, "test_SaveWorkTree", NULL, 0);
-        
+
     char *hashTree2 = saveWorkTree(wtTest, "./");
 
     system("rm -r test_SaveWorkTree");

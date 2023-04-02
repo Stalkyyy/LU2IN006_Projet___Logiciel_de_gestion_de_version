@@ -51,7 +51,7 @@ void freeWorkFile(WorkFile *wf){
 
 
 char* wfts(WorkFile *wf){
-    int length = strlen(wf->name) + strlen(wf->hash) + 6;
+    int length = (wf->hash != NULL) ? strlen(wf->name) + strlen(wf->hash) + 6 : strlen(wf->name) + 4 + 6;
     char *str = (char *)malloc(sizeof(char)*length);
     if(str == NULL){
         printf("Erreur : Allocation str wtfs()\n");
@@ -67,7 +67,7 @@ char* wfts(WorkFile *wf){
     
     strcpy(str, wf->name);
     strcat(str, "\t");
-    strcat(str, wf->hash);
+    strcat(str, wf->hash ? wf->hash : "NULL");
     strcat(str, "\t");
     strcat(str, mode);
 
@@ -95,7 +95,7 @@ WorkFile* stwf(char *ch){
 /*
  * Nous avons préféré faire un tableau de POINTEURS de Workfile.
  * En effet, nous avions déjà fait une fonction freeWorkFile.
-*/
+ */
 WorkTree* initWorkTree(){
     WorkTree *wt = (WorkTree *)malloc(sizeof(WorkTree));
     if (wt == NULL){
@@ -165,7 +165,7 @@ char* wtts(WorkTree *wt){
 
     /*
      * Cette boucle permet de stocker chaque chaine de caractère des workFile, ainsi qu'avoir la taille du string sortant.
-    */
+     */
     for(int i = 0; i < wt->n; i++){
         char* strWf = wfts(wt->tab[i]);
         sizeStr += strlen(strWf) + 1;
@@ -200,7 +200,7 @@ WorkTree* stwt(char *s){
         char *hash = strtok(NULL, "\t\n");
         int mode = atoi(strtok(NULL, "\t\n"));
 
-        appendWorkTree(wt, name, hash, mode);
+        appendWorkTree(wt, name, strcmp(hash, "NULL") == 0 ? NULL : hash, mode);
         tok = strtok(NULL, "\t\n");
     }
 
@@ -238,7 +238,7 @@ WorkTree* ftwt(char* file){
     int mode;
 
     while((EOF != fscanf(f, "%[^\t]\t%[^\t]\t%d\n", name, hash, &mode)) && (wt->n < wt->size)){
-        appendWorkTree(wt, name, hash, mode);
+        appendWorkTree(wt, name, strcmp(hash, "NULL") == 0 ? NULL : hash, mode);
     }
 
     fclose(f);
@@ -252,7 +252,7 @@ WorkTree* ftwt(char* file){
 char* blobWorkTree(WorkTree *wt){
     /*
      * Création du fichier temporaire afin d'avoir la hash du WorkTree.
-    */
+     */
     if(!file_exists("tmp")){
         system("mkdir tmp");
     }
@@ -267,7 +267,7 @@ char* blobWorkTree(WorkTree *wt){
     
     /*
      * Même fonction que BlobFile, à la différence près qu'on rajoute ".t" à la fin du nom de l'instantané.
-    */
+     */
     char *hash = sha256file(fname);
     char rep[12];
     snprintf(rep, 13, "autosave/%c%c", hash[0], hash[1]);
@@ -298,7 +298,7 @@ char* blobWorkTree(WorkTree *wt){
 
     /*
      * On supprime le fichier temporaire.
-    */
+     */
     snprintf(linuxCommand, 1022, "rm -f %s", fname+2);
     system(linuxCommand);
 
@@ -359,7 +359,7 @@ char* saveWorkTree(WorkTree *wt, char *path){
  * Ces variables serviront à enregistrer la position du dossier autosave.
  * Nous supposons que, lors de l'appel de la fonction, le path est le répertoire parent du autosave.
  * On a qu'un seul autosave par projet.
-*/
+ */
 int testOldPath_Autosave = 0;
 char *OldPath_Autosave = NULL;
 
@@ -369,7 +369,7 @@ void restoreWorkTree(WorkTree *wt, char *path){
 
         /*
          * Ici, 12 signifie : 1 pour '\0', 2 pour '.t' si besoin, 9 pour "autosave/".
-        */
+         */
         char *pathFile = (char*)malloc(sizeof(char) * (strlen(path) + strlen(hashPath) + 12));
         if(pathFile == NULL){
                 printf("Erreur : allocation de pathFile (restoreWorkTree)\n");
@@ -379,7 +379,7 @@ void restoreWorkTree(WorkTree *wt, char *path){
         /*
          * Si c'est la première fois qu'on tombe sur un path, on l'enregistre. Il contient le dossier autosave.
          * Sinon, durant le strcpy, on prend le premier path contenu dans la variable OldPath_Autosave.
-        */
+         */
         if(testOldPath_Autosave == 0){
             strcpy(pathFile, path);
             testOldPath_Autosave = 1;
