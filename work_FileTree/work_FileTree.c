@@ -253,11 +253,11 @@ char* blobWorkTree(WorkTree *wt){
     /*
      * Création du fichier temporaire afin d'avoir la hash du WorkTree.
      */
-    if(!file_exists("tmp")){
-        system("mkdir tmp");
+    if(!file_exists(".tmp")){
+        system("mkdir .tmp");
     }
 
-    static char template[] = "./tmp/blobWorkTree_XXXXXX";
+    static char template[] = "./.tmp/blobWorkTree_XXXXXX";
     char fname[1000];
     strcpy(fname, template);
     int fd = mkstemp(fname);
@@ -269,26 +269,26 @@ char* blobWorkTree(WorkTree *wt){
      * Même fonction que BlobFile, à la différence près qu'on rajoute ".t" à la fin du nom de l'instantané.
      */
     char *hash = sha256file(fname);
-    char rep[12];
-    snprintf(rep, 13, "autosave/%c%c", hash[0], hash[1]);
+    char rep[13];
+    snprintf(rep, 13, ".autosave/%c%c", hash[0], hash[1]);
 
-    char linuxCommand[1022];
-    if(!file_exists("autosave")){
-        system("mkdir autosave");
+    char linuxCommand[1024];
+    if(!file_exists(".autosave")){
+        system("mkdir .autosave");
     }
     if(!file_exists(rep)){
-        snprintf(linuxCommand, 21, "mkdir -p autosave/%c%c", hash[0], hash[1]);
+        snprintf(linuxCommand, 22, "mkdir -p .autosave/%c%c", hash[0], hash[1]);
         system(linuxCommand);
     }
 
     char *path = hashToPath(hash);
-    char *hashFileName = malloc(sizeof(char)*(strlen(path)+12));
+    char *hashFileName = malloc(sizeof(char)*(strlen(path)+13));
     if (hashFileName == NULL){
         printf("Erreur : allocation de HashFileName (BlobWorkTree)\n");
         exit(1);
     }
 
-    strcpy(hashFileName, "autosave/");
+    strcpy(hashFileName, ".autosave/");
     strcat(hashFileName, path);
     strcat(hashFileName, ".t");
     cp(hashFileName,fname);
@@ -299,7 +299,7 @@ char* blobWorkTree(WorkTree *wt){
     /*
      * On supprime le fichier temporaire.
      */
-    snprintf(linuxCommand, 1022, "rm -f %s", fname+2);
+    snprintf(linuxCommand, 1024, "rm -f %s", fname+2);
     system(linuxCommand);
 
     return hash;
@@ -368,16 +368,16 @@ void restoreWorkTree(WorkTree *wt, char *path){
         char *hashPath = hashToPath(wt->tab[i]->hash);
 
         /*
-         * Ici, 12 signifie : 1 pour '\0', 2 pour '.t' si besoin, 9 pour "autosave/".
+         * Ici, 12 signifie : 1 pour '\0', 2 pour '.t' si besoin, 10 pour ".autosave/".
          */
-        char *pathFile = (char*)malloc(sizeof(char) * (strlen(path) + strlen(hashPath) + 12));
+        char *pathFile = (char*)malloc(sizeof(char) * (strlen(path) + strlen(hashPath) + 13));
         if(pathFile == NULL){
                 printf("Erreur : allocation de pathFile (restoreWorkTree)\n");
                 exit(1);
             }
 
         /*
-         * Si c'est la première fois qu'on tombe sur un path, on l'enregistre. Il contient le dossier autosave.
+         * Si c'est la première fois qu'on tombe sur un path, on l'enregistre. Il contient le dossier .autosave.
          * Sinon, durant le strcpy, on prend le premier path contenu dans la variable OldPath_Autosave.
          */
         if(testOldPath_Autosave == 0){
@@ -387,7 +387,7 @@ void restoreWorkTree(WorkTree *wt, char *path){
         } else {
             strcpy(pathFile, OldPath_Autosave);
         }
-        strcat(pathFile, "autosave/");
+        strcat(pathFile, ".autosave/");
         strcat(pathFile, hashPath);
 
         if(file_exists(pathFile)){

@@ -29,11 +29,11 @@ char* sha256file(char* file){
      * Création du fichier temporaire 
      */
 
-    if(!file_exists("tmp")){
-        system("mkdir tmp");
+    if(!file_exists(".tmp")){
+        system("mkdir .tmp");
     }
 
-    static char template[] = "./tmp/sha256_XXXXXX";
+    static char template[] = "./.tmp/sha256_XXXXXX";
     char tempName[1000];
     strcpy(tempName, template);
     int fd = mkstemp(tempName);

@@ -86,13 +86,13 @@ void myGitCommit(char *branch_name, char *message){
 void restoreCommit(char *hash_commit){
     char *path_hash = hashToPath(hash_commit);
 
-    char *buff = (char *)malloc(sizeof(char) * (strlen(path_hash) + 12));
+    char *buff = (char *)malloc(sizeof(char) * (strlen(path_hash) + 13));
     if(buff == NULL){
         printf("Erreur : allocation buff (restoreCommit)\n");
         exit(1);
     }
 
-    strcpy(buff, "autosave/");
+    strcpy(buff, ".autosave/");
     strcat(buff, path_hash);
     strcat(buff, ".c");
 
@@ -101,12 +101,12 @@ void restoreCommit(char *hash_commit){
 
     char *tree = commitGet(c, "tree");
     char *tree_hash = hashToPath(tree);
-    char *tree_file = (char *)malloc(sizeof(char) * (strlen(tree_hash) + 12));
+    char *tree_file = (char *)malloc(sizeof(char) * (strlen(tree_hash) + 13));
     if(buff == NULL){
         printf("Erreur : allocation tree_hash (restoreCommit)\n");
         exit(1);
     }
-    strcpy(tree_file, "autosave/");
+    strcpy(tree_file, ".autosave/");
     strcat(tree_file, tree_hash); 
     strcat(tree_file, ".t");
 

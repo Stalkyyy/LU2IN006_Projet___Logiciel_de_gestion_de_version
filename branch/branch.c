@@ -77,8 +77,8 @@ void printBranch(char *branch){
     char *c_hash = getRef(branch);
     char *path_hash = hashToPath(c_hash);
 
-    char *buff = (char *)malloc(sizeof(char) * (strlen(path_hash) + 12));
-    strcpy(buff, "autosave/");
+    char *buff = (char *)malloc(sizeof(char) * (strlen(path_hash) + 13));
+    strcpy(buff, ".autosave/");
     strcat(buff, path_hash);
     strcat(buff, ".c");
 
@@ -101,7 +101,7 @@ void printBranch(char *branch){
         if(c_hash != NULL){
             free(path_hash);
             path_hash = hashToPath(c_hash);
-            strcpy(buff, "autosave/");
+            strcpy(buff, ".autosave/");
             strcat(buff, path_hash);
             strcat(buff, ".c");
 
@@ -123,8 +123,8 @@ List *branchList(char *branch){
     char *c_hash = getRef(branch);
     char *path_hash = hashToPath(c_hash);
 
-    char *buff = (char *)malloc(sizeof(char) * (strlen(path_hash) + 12));
-    strcpy(buff, "autosave/");
+    char *buff = (char *)malloc(sizeof(char) * (strlen(path_hash) + 13));
+    strcpy(buff, ".autosave/");
     strcat(buff, path_hash);
     strcat(buff, ".c");
 
@@ -138,7 +138,7 @@ List *branchList(char *branch){
         if(c_hash != NULL){
             free(path_hash);
             path_hash = hashToPath(c_hash);
-            strcpy(buff, "autosave/");
+            strcpy(buff, ".autosave/");
             strcat(buff, path_hash);
             strcat(buff, ".c");
 

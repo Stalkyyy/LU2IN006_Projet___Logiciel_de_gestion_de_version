@@ -295,20 +295,20 @@ char* hashToPath(char* hash){
 
 
 void blobFile(char* file){
-    char rep[12];
+    char rep[13];
     char *hash = sha256file(file);
-    snprintf(rep, 12, "autosave/%c%c", hash[0], hash[1]);
+    snprintf(rep, 13, ".autosave/%c%c", hash[0], hash[1]);
 
     if(!file_exists(rep)){
-        char linuxCommand[21];
-        snprintf(linuxCommand, 21, "mkdir -p autosave/%c%c", hash[0], hash[1]);
+        char linuxCommand[22];
+        snprintf(linuxCommand, 22, "mkdir -p .autosave/%c%c", hash[0], hash[1]);
         system(linuxCommand);
     }
 
     char *path = hashToPath(hash);
-    char* hashFileName = malloc(sizeof(char)*(strlen(path)+10));
+    char* hashFileName = malloc(sizeof(char)*(strlen(path)+11));
 
-    strcpy(hashFileName, "autosave/");
+    strcpy(hashFileName, ".autosave/");
     strcat(hashFileName, path);
     cp(hashFileName,file);
 

@@ -272,11 +272,11 @@ char* blobCommit(Commit *c){
     /*
      * Création du fichier temporaire afin d'avoir la hash du WorkTree.
      */
-    if(!file_exists("tmp")){
-        system("mkdir tmp");
+    if(!file_exists(".tmp")){
+        system("mkdir .tmp");
     }
 
-    static char template[] = "./tmp/blobCommit_XXXXXX";
+    static char template[] = "./.tmp/blobCommit_XXXXXX";
     char fname[1000];
     strcpy(fname, template);
     int fd = mkstemp(fname);
@@ -288,26 +288,26 @@ char* blobCommit(Commit *c){
      * Même fonction que BlobFile, à la différence près qu'on rajoute ".c" à la fin du nom de l'instantané.
      */
     char *hash = sha256file(fname);
-    char rep[12];
-    snprintf(rep, 13, "autosave/%c%c", hash[0], hash[1]);
+    char rep[13];
+    snprintf(rep, 13, ".autosave/%c%c", hash[0], hash[1]);
 
-    char linuxCommand[1022];
-    if(!file_exists("autosave")){
-        system("mkdir autosave");
+    char linuxCommand[1024];
+    if(!file_exists(".autosave")){
+        system("mkdir .autosave");
     }
     if(!file_exists(rep)){
-        snprintf(linuxCommand, 21, "mkdir -p autosave/%c%c", hash[0], hash[1]);
+        snprintf(linuxCommand, 22, "mkdir -p .autosave/%c%c", hash[0], hash[1]);
         system(linuxCommand);
     }
 
     char *path = hashToPath(hash);
-    char *hashFileName = malloc(sizeof(char)*(strlen(path)+12));
+    char *hashFileName = malloc(sizeof(char)*(strlen(path)+13));
     if (hashFileName == NULL){
         printf("Erreur : allocation de HashFileName (BlobCommit)\n");
         exit(1);
     }
 
-    strcpy(hashFileName, "autosave/");
+    strcpy(hashFileName, ".autosave/");
     strcat(hashFileName, path);
     strcat(hashFileName, ".c");
     cp(hashFileName,fname);
@@ -318,7 +318,7 @@ char* blobCommit(Commit *c){
     /*
      * On supprime le fichier temporaire.
      */
-    snprintf(linuxCommand, 1022, "rm -f %s", fname+2);
+    snprintf(linuxCommand, 1024, "rm -f %s", fname+2);
     system(linuxCommand);
 
     return hash;
