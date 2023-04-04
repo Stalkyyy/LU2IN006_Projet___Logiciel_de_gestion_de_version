@@ -194,3 +194,109 @@ List *getAllCommits(){
     freeList(content); free(path);
     return l;
 }
+
+
+//============================================================================
+
+
+void restoreCommit(char *hash_commit){
+    char *path_hash = hashToPath(hash_commit);
+
+    char *buff = (char *)malloc(sizeof(char) * (strlen(path_hash) + 13));
+    if(buff == NULL){
+        printf("Erreur : allocation buff (restoreCommit)\n");
+        exit(1);
+    }
+
+    strcpy(buff, ".autosave/");
+    strcat(buff, path_hash);
+    strcat(buff, ".c");
+
+    Commit *c = ftc(buff);
+
+
+    char *tree = commitGet(c, "tree");
+    char *tree_hash = hashToPath(tree);
+    char *tree_file = (char *)malloc(sizeof(char) * (strlen(tree_hash) + 13));
+    if(buff == NULL){
+        printf("Erreur : allocation tree_hash (restoreCommit)\n");
+        exit(1);
+    }
+    strcpy(tree_file, ".autosave/");
+    strcat(tree_file, tree_hash); 
+    strcat(tree_file, ".t");
+
+    WorkTree *wt = ftwt(tree_file);
+    restoreWorkTree(wt, "./");
+
+    free(path_hash); free(buff); free(tree); free(tree_hash); free(tree_file);
+    freeCommit(c);
+    freeWorkTree(wt);
+}
+
+
+void myGitCheckoutBranch(char *branch){
+    FILE *f = fopen(".current_branch", "w");
+    if(f == NULL){
+        printf("Erreur : ouverture de .current_branch (myGitCheckoutBranch())\n");
+        exit(1);
+    }
+
+    fprintf(f, "%s", branch);
+    fclose(f);
+
+    char *c_hash = getRef(branch);
+    createUpdateRef("HEAD", c_hash);
+    restoreCommit(c_hash);
+    free(c_hash);
+}
+
+
+List *filterList(List *l, char *pattern){
+    List *list_filter = initList();
+
+    Cell *c = *l;
+    while(c){
+        char *str = strdup(c->data);
+        str[strlen(pattern)] = '\0';
+
+        if (strcmp(str, pattern) == 0){
+            insertFirst(list_filter, buildCell(c->data));
+        }
+        
+        free(str);
+        c = c->next;
+    }
+
+    return list_filter;
+}
+
+
+void myGitCheckoutCommit(char *pattern){
+    List *l = getAllCommits();
+    List *list_filter = filterList(l, pattern);
+
+    if(*list_filter == NULL){
+        printf("Pas de pattern trouvé.\n");
+    }
+
+    else{
+        Cell *c = *list_filter;
+        if(c->next == NULL){
+            char *c_hash = strdup(c->data);
+            createUpdateRef("HEAD", c_hash);
+            restoreCommit(c_hash);
+            free(c_hash);
+        }
+
+        else {
+            printf("Plusieurs correspondances trouvées :\n");
+            while(c != NULL){
+                printf("   -> %s\n", c->data);
+                c = c->next;
+            }
+        }
+    }
+
+    freeList(l); freeList(list_filter);
+}

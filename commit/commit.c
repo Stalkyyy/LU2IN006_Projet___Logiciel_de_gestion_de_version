@@ -181,7 +181,7 @@ char* commitGet(Commit *c, char *key){
             return NULL;
         
         if(strcmp(c->T[index]->key, key) == 0)
-            return strdup(c->T[index]->key);
+            return strdup(c->T[index]->value);
     }
 
     return NULL;
@@ -422,4 +422,79 @@ char* getRef(char *ref_name){
     fclose(f);
     free(buff);
     return hash;
+}
+
+
+//=====================================================================
+
+
+void myGitAdd(char *file_or_folder){
+    /*
+     * Ici, le fichier .add sera dans tous les cas créer par la fonction wttf s'il n'existe pas.
+     */
+    WorkTree *wt = file_exists(".add") ? ftwt(".add") : initWorkTree();
+
+    if(file_exists(file_or_folder)){
+        appendWorkTree(wt, file_or_folder, NULL, 0);
+        wttf(wt, ".add");
+    } else {
+        printf("Le fichier/répertoire %s n'existe pas.\n", file_or_folder);
+    }
+
+    freeWorkTree(wt);
+}
+
+
+void myGitCommit(char *branch_name, char *message){
+    if(!file_exists(".refs")){
+        printf("Initialisez d'abord les références du projet.\n");
+        return;
+    }
+
+    char *buff = (char *)malloc(sizeof(char) * (strlen(branch_name) + 7));
+    if(buff == NULL){
+        printf("Erreur : allocation buff (myGitCommit)\n");
+        exit(1);
+    }
+    sprintf(buff, ".refs/%s", branch_name);
+
+    if(!file_exists(buff)){
+        printf("La branche %s n'existe pas.\n", branch_name);
+        free(buff);
+        return;
+    }
+
+    char *hash_branch = getRef(branch_name);
+    char *hash_head = getRef("HEAD");
+
+    if(hash_head != NULL){
+        if(strcmp(hash_branch, hash_head)){
+                printf("HEAD doit pointer sur le dernier commit de la branche.\n");
+                free(buff); free(hash_branch); free(hash_head);
+                return;
+        }
+    }
+
+    WorkTree *wt = ftwt(".add");
+    system("rm .add");
+
+    char *hash_wt = saveWorkTree(wt, "./");
+
+    Commit *c = createCommit(hash_wt);
+
+    if (hash_branch != NULL){
+        if(strlen(hash_branch) != 0)
+            commitSet(c, "predecessor", hash_branch);
+    }
+
+    if (message != NULL)
+        commitSet(c, "message", message);
+
+    char *hash_c = blobCommit(c);
+    createUpdateRef(branch_name, hash_c);
+    createUpdateRef("HEAD", hash_c);
+    
+    free(buff); free(hash_branch); free(hash_head); free(hash_wt); free(hash_c);
+    freeWorkTree(wt);
+    freeCommit(c);
 }
