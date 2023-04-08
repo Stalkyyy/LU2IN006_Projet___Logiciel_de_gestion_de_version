@@ -41,16 +41,19 @@ int main(){
     }
 
     printf("\n");
+
     /*
      * A faire avant de le lancer
      * Compiler MyGit, créer une branche master_Change avec un commit différent de master grâce au fichier test.txt.
      * 
      * ../myGit init
-     * ../myGit add test.txt fusion.h
+     * ../myGit add test.txt
      * ../myGit commit master -m PremierCommitMaster
      * ../myGit branch master_Change
-     * ../myGit add test.txt Makefile
+     * ../myGit add Makfile
      * ../myGit commit master_Change -m PremierCommitMaster_Change
+     * 
+     * Ici, en rajoutant un doublon de fichier, le merge ne sera pas effectué.
      */
 
     WorkTree *wt_master_2 = NULL; Commit *c_master_2 = NULL;
@@ -69,10 +72,21 @@ int main(){
         printf("   -> %s\n", wt_master_2->tab[i]->name);
     }
 
+    //==========================================================================================================
+
+    system("rm test.txt");
+    //sleep(2);
+    List *l_merge = merge("master_Change", "NewFusion");
+
+    printf("\nTest de merge :\n");
+    printf("   -> Merge effectué ? %s\n", l_merge == NULL ? "oui" : "non");
 
 
+    if (conflicts != NULL) freeList(conflicts); 
+    if (l_merge != NULL) freeList(l_merge);
 
-    freeList(conflicts);
+    //==========================================================================================================
+
     freeWorkTree(wt1), freeWorkTree(wt2), freeWorkTree(wt_no_conflicts);
     freeWorkTree(wt_master); freeWorkTree(wt_master_2);
     freeCommit(c_master); freeCommit(c_master_2);

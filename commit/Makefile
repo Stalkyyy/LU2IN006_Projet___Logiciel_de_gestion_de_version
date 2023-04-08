@@ -10,4 +10,4 @@ commit_test : $(OBJFILES_WORK)
 
 clean : 
 	rm -f $(OBJFILES_WORK) commit_test test_ctf.txt
-	rm -r autosave tmp .refs
+	rm -r .autosave .tmp .refs

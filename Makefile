@@ -1,7 +1,7 @@
 CC = gcc
 CFLAGS = -Wall -ggdb
 
-OBJFILES_MYGIT = myGit.o ./sha256/sha256.o ./cellList/cellList.o ./work_FileTree/work_FileTree.o ./commit/commit.o ./branch/branch.o
+OBJFILES_MYGIT = myGit.o ./sha256/sha256.o ./cellList/cellList.o ./work_FileTree/work_FileTree.o ./commit/commit.o ./branch/branch.o ./fusion/fusion.o
 
 all : myGit
 

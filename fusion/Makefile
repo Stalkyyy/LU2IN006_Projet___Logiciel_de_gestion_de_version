@@ -9,5 +9,5 @@ fusion_test : $(OBJFILES_WORK)
 	$(CC) $(CFLAGS) -o fusion_test $(OBJFILES_WORK)
 
 clean : 
-	rm -f $(OBJFILES_WORK) .current_branch 
+	rm -f $(OBJFILES_WORK) .current_branch fusion_test
 	rm -r .autosave .tmp .refs

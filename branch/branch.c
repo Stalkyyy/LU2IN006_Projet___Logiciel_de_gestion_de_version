@@ -77,10 +77,10 @@ void printBranch(char *branch){
     char *c_hash = getRef(branch);
     char *path_hash = hashToPath(c_hash);
 
-    char *buff = (char *)malloc(sizeof(char) * (strlen(path_hash) + 13));
-    strcpy(buff, ".autosave/");
-    strcat(buff, path_hash);
-    strcat(buff, ".c");
+    int size = strlen(path_hash) + 13;
+    char *buff = (char *)malloc(sizeof(char) * size);
+
+    snprintf(buff, size, ".autosave/%s.c", path_hash);
 
     Commit *c = ftc(buff);
 
@@ -101,10 +101,7 @@ void printBranch(char *branch){
         if(c_hash != NULL){
             free(path_hash);
             path_hash = hashToPath(c_hash);
-            strcpy(buff, ".autosave/");
-            strcat(buff, path_hash);
-            strcat(buff, ".c");
-
+            snprintf(buff, size, ".autosave/%s.c", path_hash);
             c = ftc(buff);
         } else {
             c = NULL;
@@ -123,10 +120,10 @@ List *branchList(char *branch){
     char *c_hash = getRef(branch);
     char *path_hash = hashToPath(c_hash);
 
-    char *buff = (char *)malloc(sizeof(char) * (strlen(path_hash) + 13));
-    strcpy(buff, ".autosave/");
-    strcat(buff, path_hash);
-    strcat(buff, ".c");
+    int size = strlen(path_hash) + 13;
+    char *buff = (char *)malloc(sizeof(char) * size);
+
+    snprintf(buff, size, ".autosave/%s.c", path_hash);
 
     Commit *c = ftc(buff);
     while(c != NULL){
@@ -138,10 +135,7 @@ List *branchList(char *branch){
         if(c_hash != NULL){
             free(path_hash);
             path_hash = hashToPath(c_hash);
-            strcpy(buff, ".autosave/");
-            strcat(buff, path_hash);
-            strcat(buff, ".c");
-
+            snprintf(buff, size, ".autosave/%s.c", path_hash);
             c = ftc(buff);
         } else {
             c = NULL;
@@ -202,29 +196,29 @@ List *getAllCommits(){
 void restoreCommit(char *hash_commit){
     char *path_hash = hashToPath(hash_commit);
 
-    char *buff = (char *)malloc(sizeof(char) * (strlen(path_hash) + 13));
+    int size = strlen(path_hash) + 13;
+    char *buff = (char *)malloc(sizeof(char) * size);
     if(buff == NULL){
         printf("Erreur : allocation buff (restoreCommit)\n");
         exit(1);
     }
 
-    strcpy(buff, ".autosave/");
-    strcat(buff, path_hash);
-    strcat(buff, ".c");
+    snprintf(buff, size, ".autosave/%s.c", path_hash);
 
     Commit *c = ftc(buff);
 
 
     char *tree = commitGet(c, "tree");
     char *tree_hash = hashToPath(tree);
-    char *tree_file = (char *)malloc(sizeof(char) * (strlen(tree_hash) + 13));
-    if(buff == NULL){
+
+    size = strlen(tree_hash) + 13;
+    char *tree_file = (char *)malloc(sizeof(char) * size);
+    if(tree_file == NULL){
         printf("Erreur : allocation tree_hash (restoreCommit)\n");
         exit(1);
     }
-    strcpy(tree_file, ".autosave/");
-    strcat(tree_file, tree_hash); 
-    strcat(tree_file, ".t");
+
+    snprintf(tree_file, size, ".autosave/%s.t", tree_hash);
 
     WorkTree *wt = ftwt(tree_file);
     restoreWorkTree(wt, "./");
@@ -246,6 +240,7 @@ void myGitCheckoutBranch(char *branch){
     fclose(f);
 
     char *c_hash = getRef(branch);
+    if(c_hash == NULL) printf("hey hey %s\n", branch);
     createUpdateRef("HEAD", c_hash);
     restoreCommit(c_hash);
     free(c_hash);

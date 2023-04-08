@@ -10,4 +10,4 @@ cellList_test : $(OBJFILES_CELLIST)
 
 clean :
 	rm -f CLEAN_CELLIST = $(OBJFILES_CELLIST) cellList_test test_ltof.txt copie.txt test_listdir.txt
-	rm -r autosave
+	rm -r .autosave .tmp

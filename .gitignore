@@ -4,6 +4,7 @@ cellList_test
 sha256_test
 commit_test
 work_FileTree_test
+fusion_test
 test_ltof.txt
 test_wttf.txt
 .autosave

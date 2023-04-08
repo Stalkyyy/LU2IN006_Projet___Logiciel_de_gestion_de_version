@@ -31,11 +31,10 @@ void freeKeyVal(kvp *kv){
 
 
 char* kvts(kvp *k){
-    char *str = (char*)malloc(sizeof(char) * (strlen(k->key) + strlen(k->value) + 2));
-    strcpy(str, k->key);
-    strcat(str, ":");
-    strcat(str, k->value);
+    int size = strlen(k->key) + strlen(k->value) + 2;
+    char *str = (char*)malloc(sizeof(char) * (size));
 
+    snprintf(str, size, "%s:%s", k->key, k->value);
     return str;
 }
 
@@ -301,15 +300,15 @@ char* blobCommit(Commit *c){
     }
 
     char *path = hashToPath(hash);
-    char *hashFileName = malloc(sizeof(char)*(strlen(path)+13));
+
+    int size_HFN = strlen(path)+13;
+    char *hashFileName = malloc(sizeof(char)*(size_HFN));
     if (hashFileName == NULL){
         printf("Erreur : allocation de HashFileName (BlobCommit)\n");
         exit(1);
     }
 
-    strcpy(hashFileName, ".autosave/");
-    strcat(hashFileName, path);
-    strcat(hashFileName, ".c");
+    snprintf(hashFileName, size_HFN, ".autosave/%s.c", path);
     cp(hashFileName,fname);
     free(hashFileName);
     free(path);
@@ -429,10 +428,13 @@ char* getRef(char *ref_name){
 
 
 void myGitAdd(char *file_or_folder){
-    /*
-     * Ici, le fichier .add sera dans tous les cas créer par la fonction wttf s'il n'existe pas.
-     */
-    WorkTree *wt = file_exists(".add") ? ftwt(".add") : initWorkTree();
+    WorkTree *wt;
+    if(file_exists(".add")){
+        wt = ftwt(".add");
+    } else {
+        system("touch .add");
+        wt = initWorkTree();
+    }
 
     if(file_exists(file_or_folder)){
         appendWorkTree(wt, file_or_folder, NULL, 0);

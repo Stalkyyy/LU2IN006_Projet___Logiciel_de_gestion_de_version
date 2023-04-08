@@ -51,27 +51,14 @@ void freeWorkFile(WorkFile *wf){
 
 
 char* wfts(WorkFile *wf){
-    int length = (wf->hash != NULL) ? strlen(wf->name) + strlen(wf->hash) + 6 : strlen(wf->name) + 4 + 6;
-    char *str = (char *)malloc(sizeof(char)*length);
+    int size = (wf->hash != NULL) ? strlen(wf->name) + strlen(wf->hash) + 6 : strlen(wf->name) + 4 + 6;
+    char *str = (char *)malloc(sizeof(char)*size);
     if(str == NULL){
         printf("Erreur : Allocation str wtfs()\n");
         exit(1);
     }
-
-    char *mode = (char *)malloc(sizeof(char)*4);
-    if(mode == NULL){
-        printf("Erreur : Allocation mode (str) wtts()\n");
-        exit(1);
-    }
-    sprintf(mode, "%d", wf->mode);
     
-    strcpy(str, wf->name);
-    strcat(str, "\t");
-    strcat(str, wf->hash ? wf->hash : "NULL");
-    strcat(str, "\t");
-    strcat(str, mode);
-
-    free(mode);
+    snprintf(str, size, "%s\t%s\t%d", wf->name, wf->hash ? wf->hash : "NULL", wf->mode);
     return str;
 }
 
@@ -282,15 +269,15 @@ char* blobWorkTree(WorkTree *wt){
     }
 
     char *path = hashToPath(hash);
-    char *hashFileName = malloc(sizeof(char)*(strlen(path)+13));
+
+    int size = strlen(path) + 13;
+    char *hashFileName = malloc(sizeof(char)*size);
     if (hashFileName == NULL){
         printf("Erreur : allocation de HashFileName (BlobWorkTree)\n");
         exit(1);
     }
 
-    strcpy(hashFileName, ".autosave/");
-    strcat(hashFileName, path);
-    strcat(hashFileName, ".t");
+    snprintf(hashFileName, size, ".autosave/%s.t", path);
     cp(hashFileName,fname);
     free(hashFileName);
     free(path);

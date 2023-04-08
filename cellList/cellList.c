@@ -264,11 +264,15 @@ void cp(char *to, char *from){
 
     FILE *fsource = fopen(from, "r");
     if (fsource == NULL){
-        printf("Erreur : ouverture de %s (cp)\n", to);
+        printf("Erreur : ouverture de %s (cp)\n", from);
         exit(1);
     }
 
     FILE *fdest = fopen(to, "w");
+    if (fsource == NULL){
+        printf("Erreur : ouverture de %s (cp)\n", to);
+        exit(1);
+    }
 
 
     while(fgets(contenu, 1000, fsource) != NULL){
@@ -282,14 +286,12 @@ void cp(char *to, char *from){
 
 char* hashToPath(char* hash){
     char *path = (char*)malloc(sizeof(char)*(strlen(hash)+2));
-    char rep[3];
-    rep[0] = hash[0];
-    rep[1] = hash[1];
-    rep[2] = '\0';
+    if(path == NULL){
+        printf("Erreur : allocation de path (hashToPath())\n");
+        exit(1);
+    }
 
-    strcpy(path, rep);
-    strcat(path, "/");
-    strcat(path, hash+2);
+    snprintf(path, strlen(hash)+2, "%c%c/%s", hash[0], hash[1], hash + 2);
     return path;
 }
 
@@ -308,8 +310,7 @@ void blobFile(char* file){
     char *path = hashToPath(hash);
     char* hashFileName = malloc(sizeof(char)*(strlen(path)+11));
 
-    strcpy(hashFileName, ".autosave/");
-    strcat(hashFileName, path);
+    snprintf(hashFileName, strlen(path)+11, ".autosave/%s", path);
     cp(hashFileName,file);
 
 

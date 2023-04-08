@@ -25,9 +25,13 @@ int main(int argc, char* argv[]){
         printf("   -> %s branch-print <branch_name>\n", argv[0]);
         printf("   -> %s checkout-branch <branch_name>\n", argv[0]);
         printf("   -> %s checkout-commit <pattern>\n", argv[0]);
+        printf("   -> %s merge <branch> <message>\n", argv[0]);
 
         return 0;
     }
+
+
+
 
     if(strcmp(argv[1], "init") == 0){
         initRefs();
@@ -192,6 +196,102 @@ int main(int argc, char* argv[]){
         myGitCheckoutCommit(argv[2]);
     }
 
+    else if(strcmp(argv[1], "merge") == 0){
+        if(argc < 4){
+            printf("Il manque un.des arguments.\n");
+            printf("Usage : %s merge <branch> <message>\n", argv[0]);
+            return 1;            
+        }
+
+        int size = strlen(argv[2]) + 7;
+        char *br = (char *)malloc(sizeof(char) * (strlen(argv[2]) + 7));
+        if(br == NULL){
+            printf("Erreur : allocation de br (main - merge)\n");
+            return 1;
+        }
+
+        snprintf(br, size, ".refs/%s", argv[2]);
+        if(!file_exists(br)){
+            printf("La branche %s n'existe pas, ré-essayez.\n", argv[2]);
+            free(br);
+            return 1;
+        }
+        free(br);
+
+        List *conflicts = merge(argv[2], argv[3]);
+
+        if (conflicts == NULL){
+            printf("Merge effectué.\n");
+            return 0;
+        }
+
+        char *curr;
+        int choice;
+        printf("Conflits détectés. Choisissez en tapant le chiffre correspondant :\n");
+        printf("   -> 1 : Garder les fichiers de la branche courante.\n");
+        printf("   -> 2 : Garder les fichiers de la branche %s.\n", argv[2]);
+        printf("   -> 3 : Sélectionner un par un les fichiers et répertoires.\n");
+        printf("   -> autre : Quitter.\n\n");
+        printf("Mon choix : "); scanf("%d", &choice);
+
+        switch(choice){
+            case 1 :
+                createDeletionCommit(argv[2], conflicts, "Suppression des conflits.");
+                merge(argv[2], argv[3]);
+                break;
+
+            case 2 :
+                curr = getCurrentBranch();
+                myGitCheckoutBranch(argv[2]);
+                createDeletionCommit(curr, conflicts, "Suppression des conflits.");
+                merge(curr, argv[3]);
+
+                free(curr);
+                break;
+
+            case 3 :
+                curr = getCurrentBranch();
+                List *l_current = initList();
+                List *l_remote = initList();
+                int choice_conflicts = 0;
+
+                Cell *c = *conflicts;
+
+                printf("\nChoisissez, pour chaque conflit, quel fichier vous souhaitez garder.\n");
+                printf("Tapez 1 pour la branche %s (current), sinon 2 pour la branche %s.\n", curr, argv[2]);
+                while(c != NULL){
+                    while(choice_conflicts != 1 && choice_conflicts != 2){
+                        printf("   -> conflit de \"%s\" : ", c->data);
+                        scanf("%d", &choice_conflicts);
+                    }
+
+                    if(choice_conflicts == 1)
+                        insertFirst(l_remote, buildCell(c->data));
+                    else
+                        insertFirst(l_current, buildCell(c->data));
+
+                    c = c->next;
+                    choice_conflicts = 0;
+                }
+
+                createDeletionCommit(curr, l_current, "Suppression des conflits.");
+                createDeletionCommit(argv[2], l_remote, "Suppression des conflits.");
+                merge(argv[2], argv[3]);
+
+                printf("\nMerge effectué.\n");
+
+                freeList(l_current); freeList(l_remote); free(curr);
+                break;
+
+            default :
+                printf("Au-revoir !\n");
+                break;
+        }
+
+        freeList(conflicts);
+        return 0;
+    }
+
 
 
 
@@ -210,6 +310,7 @@ int main(int argc, char* argv[]){
         printf("   -> %s branch-print <branch_name>\n", argv[0]);
         printf("   -> %s checkout-branch <branch_name>\n", argv[0]);
         printf("   -> %s checkout-commit <pattern>\n", argv[0]);
+        printf("   -> %s merge <branch> <message>\n", argv[0]);
     }
 
     return 0;
