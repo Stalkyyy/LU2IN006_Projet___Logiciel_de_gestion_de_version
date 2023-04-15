@@ -9,34 +9,75 @@
 #include "./branch/branch.h"
 #include "./fusion/fusion.h"
 
+
+/*
+ * Function: helpMenuPrint
+ * ==========================
+ * Affiche les differentes commandes possibles de myGit.
+ * 
+ * note: Fonction utilise si on a une mauvaise utilisation de myGit. 
+ *       Plus particulierement si le deuxieme argument (init, list-refs)... est mauvais et/ou n'existe pas.
+ * 
+ * returns: void.
+ */
+
+void helpMenuPrint(char *nameProg){
+    printf("Usage de %s :\n", nameProg);
+    printf("   -> %s init\n", nameProg);
+    printf("   -> %s list-refs\n", nameProg);
+    printf("   -> %s create-ref <name> <hash>\n", nameProg);
+    printf("   -> %s delete_ref <name>\n", nameProg);
+    printf("   -> %s add <elem> [<elem2> <elem3> ...]\n", nameProg);
+    printf("   -> %s list-add\n", nameProg);
+    printf("   -> %s clear-add\n", nameProg);
+    printf("   -> %s commit <branch_name> [-m <message>]\n", nameProg);
+    printf("   -> %s get-current-branch\n", nameProg);
+    printf("   -> %s branch <branch_name>\n", nameProg);
+    printf("   -> %s branch-print <branch_name>\n", nameProg);
+    printf("   -> %s checkout-branch <branch_name>\n", nameProg);
+    printf("   -> %s checkout-commit <pattern>\n", nameProg);
+    printf("   -> %s merge <branch> <message>\n", nameProg);
+    printf("Pour plus d'informations, lisez le fichier README.\n");
+}
+
+
+
+/*
+ * Programme : myGit
+ * ====================
+ * Logiciel de gestion de versions.
+ * Permet le stockage, le suivi et la gestion de plusieurs versions d'un projet (ou d'un ensemble de fichiers).
+ * 
+ * returns: 0 si tout se passe bien.
+ *          1 sinon.
+ */
+
 int main(int argc, char* argv[]){
     if(argc <= 1){
-        printf("Usage de %s :\n", argv[0]);
-        printf("   -> %s init\n", argv[0]);
-        printf("   -> %s list-refs\n", argv[0]);
-        printf("   -> %s create-ref <name> <hash>\n", argv[0]);
-        printf("   -> %s delete_ref <name>\n", argv[0]);
-        printf("   -> %s add <elem> [<elem2> <elem3> ...]\n", argv[0]);
-        printf("   -> %s list-add\n", argv[0]);
-        printf("   -> %s clear-add\n", argv[0]);
-        printf("   -> %s commit <branch_name> [-m <message>]\n", argv[0]);
-        printf("   -> %s get-current-branch\n", argv[0]);
-        printf("   -> %s branch <branch_name>\n", argv[0]);
-        printf("   -> %s branch-print <branch_name>\n", argv[0]);
-        printf("   -> %s checkout-branch <branch_name>\n", argv[0]);
-        printf("   -> %s checkout-commit <pattern>\n", argv[0]);
-        printf("   -> %s merge <branch> <message>\n", argv[0]);
-
+        helpMenuPrint(argv[0]);
         return 0;
     }
 
 
 
+    /*
+     * Commande : myGit init
+     * ========================
+     * Initialise le repertoire de references et la branche courante.
+     */
 
     if(strcmp(argv[1], "init") == 0){
         initRefs();
         initBranch();
     }
+
+
+
+    /*
+     * Commande : myGit list-refs
+     * =============================
+     * Affiche toutes les references existantes.
+     */
 
     else if(strcmp(argv[1], "list-refs") == 0){
         printf("Refs :\n");
@@ -73,6 +114,14 @@ int main(int argc, char* argv[]){
         }
     }
 
+
+
+    /*
+     * Commande : myGit create-ref <name> <hash>
+     * ============================================
+     * Cree la reference (name) qui pointe vers le commit correspondant à (hash).
+     */
+
     else if(strcmp(argv[1], "create-ref") == 0){
         if (argc < 4){
             printf("Il manque des arguments.\n");
@@ -82,6 +131,17 @@ int main(int argc, char* argv[]){
 
         createUpdateRef(argv[2], argv[3]);
     }
+
+
+
+    /*
+     * Commande : myGit delete-ref <name>
+     * =====================================
+     * Supprime la reference (name)
+     * 
+     * note: L'utilisateur doit faire attention s'il supprime sa current-branch.
+     *       Il doit penser a faire un checkout-branch avant tout autre modification.
+     */
 
     else if(strcmp(argv[1], "delete-ref") == 0){
         if (argc < 3){
@@ -95,6 +155,14 @@ int main(int argc, char* argv[]){
         printf("Si vous supprimez votre current-branch, pensez à faire un checkout-branch avant tout autre modification !\n");
     }
 
+
+
+    /*
+     * Commande : myGit add <elem> [<elem2> <elem3> ...]
+     * ====================================================
+     * Ajoute un ou plusieurs fichiers/repertoires (elem, elem2, elem3...) à la zone de preparation .add (pour faire partie du prochain commit).
+     */
+
     else if(strcmp(argv[1], "add") == 0){
         if(argc < 3){
             printf("Il manque un.des argument.s.\n");
@@ -106,6 +174,14 @@ int main(int argc, char* argv[]){
             myGitAdd(argv[i]);
         }
     }
+
+
+
+    /*
+     * Commande : myGit list-add
+     * ============================
+     * Affiche le contenu de la zone de preparation .add
+     */
 
     else if(strcmp(argv[1], "list-add") == 0){
         printf("Zone de préparation :\n");
@@ -119,10 +195,26 @@ int main(int argc, char* argv[]){
         }
     }
 
+
+
+    /*
+     * Commande : myGit clear-add
+     * =============================
+     * Vide la zone de preparation .add
+     */
+
     else if(strcmp(argv[1], "clear-add") == 0){
         if(file_exists(".add"))
             system("rm .add");
     }
+
+
+
+    /*
+     * Commande : myGit commit <branch_name> [-m <message>]
+     * =======================================================
+     * Effectue un commit sur une branche, avec ou sans message descriptif.
+     */
 
     else if(strcmp(argv[1], "commit") == 0){
         if (argc < 3){
@@ -139,11 +231,28 @@ int main(int argc, char* argv[]){
         }
     }
 
+
+
+    /*
+     * Commande : myGit get-current-branch
+     * ======================================
+     * Affiche le nom de la branche courante.
+     */
+
     else if(strcmp(argv[1], "get-current-branch") == 0){
         char *cur_br = getCurrentBranch();
         printf("%s\n", cur_br);
         free(cur_br);
     }
+
+
+
+    /*
+     * Commande : myGit branch <branch-name>
+     * ========================================
+     * Cree une branche qui s'appelle (branch-name) si elle n'existe pas deja.
+     * Si elle existe deja, la commande doit afficher un message d'erreur.
+     */
 
     else if(strcmp(argv[1], "branch") == 0){
         if(argc < 3){
@@ -158,6 +267,15 @@ int main(int argc, char* argv[]){
             printf("La branch %s existe déjà !\n", argv[2]);
     }
 
+
+
+    /*
+     * Commande : myGit branch-print <branch-name>
+     * ==============================================
+     * Affiche le hash de tous les commits de (branch-name), accompagne de leur message descriptif eventuel.
+     * Si la branche n'existe pas, un message d'erreur est affiche.
+     */
+
     else if(strcmp(argv[1], "branch-print") == 0){
         if(argc < 3){
             printf("Il manque un argument.\n");
@@ -170,6 +288,15 @@ int main(int argc, char* argv[]){
         else
             printf("La branch %s n'existe pas !\n", argv[2]);
     }
+
+
+
+    /*
+     * Commande : myGit checkout-branch <branch-name>
+     * =================================================
+     * Realise un deplacement sur la branche (branch-name).
+     * Si la branche n'existe pas, un message d'erreur est affiche.
+     */
 
     else if(strcmp(argv[1], "checkout-branch") == 0){
         if(argc < 3){
@@ -186,6 +313,15 @@ int main(int argc, char* argv[]){
         myGitCheckoutBranch(argv[2]);
     }
 
+
+
+    /*
+     * Commande : myGit checkout-commit <pattern>
+     * =============================================
+     * Realise un deplacement sur le commit qui commence par (pattern).
+     * Des messages d'erreur sont affiches quand (pattern) ne correspond pas a un seul commit.
+     */
+
     else if(strcmp(argv[1], "checkout-commit") == 0){
         if(argc < 3){
             printf("Il manque un argument.\n");
@@ -195,6 +331,21 @@ int main(int argc, char* argv[]){
 
         myGitCheckoutCommit(argv[2]);
     }
+
+
+
+    /*
+     * Commande : myGit merge <branch> <message>
+     * ============================================
+     * S'il n'y a pas de collision entre la branche courante et (branch), on realise le merge et on affiche un message pour montrer que la fusion s'est bien passee.
+     * S'il y a des collisions, l'utilisateur doit choisir une de ces options :
+     *      - Garder les fichiers de la branche courante.
+     *          == On cree un commit de suppression pour (branch) et on appelle la fonction merge.
+     *      - Garder les fichiers de la branche (branch).
+     *          == On cree un commit de suppression pour la branche courante et on appelle la fonction merge.
+     *      - Choisir manuellement, conflit par conflit, la branche sur laquelle il souhaite garder le fichier/repertoire qui est en conflit.
+     *          == Il faut diviser la liste des conflits en deux listes, selon ce que l'utilisateur nous dira. Puis on cree un commit de suppression sur les deux branches grace au deux listes, avant d'utiliser la fonction merge.
+     */
 
     else if(strcmp(argv[1], "merge") == 0){
         if(argc < 4){
@@ -294,24 +445,7 @@ int main(int argc, char* argv[]){
 
 
 
-
-    else {
-        printf("Usage de %s :\n", argv[0]);
-        printf("   -> %s init\n", argv[0]);
-        printf("   -> %s list-refs\n", argv[0]);
-        printf("   -> %s create-ref <name> <hash>\n", argv[0]);
-        printf("   -> %s delete_ref <name>\n", argv[0]);
-        printf("   -> %s add <elem> [<elem2> <elem3> ...]\n", argv[0]);
-        printf("   -> %s list-add\n", argv[0]);
-        printf("   -> %s clear-add\n", argv[0]);
-        printf("   -> %s commit <branch_name> [-m <message>]\n", argv[0]);
-        printf("   -> %s get-current-branch\n", argv[0]);
-        printf("   -> %s branch <branch_name>\n", argv[0]);
-        printf("   -> %s branch-print <branch_name>\n", argv[0]);
-        printf("   -> %s checkout-branch <branch_name>\n", argv[0]);
-        printf("   -> %s checkout-commit <pattern>\n", argv[0]);
-        printf("   -> %s merge <branch> <message>\n", argv[0]);
-    }
+    else helpMenuPrint(argv[0]);
 
     return 0;
 }

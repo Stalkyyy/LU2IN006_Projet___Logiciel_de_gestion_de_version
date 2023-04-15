@@ -12,6 +12,14 @@
 #include "branch.h"
 
 
+/*
+ * Function: initBranch
+ * =======================
+ * Cree le fichier cache .current_branch contenant la chaine de caracteres "master".
+ * 
+ * returns: void.
+ */
+
 void initBranch(){
     FILE *f = fopen(".current_branch", "w");
     if(f == NULL){
@@ -23,6 +31,16 @@ void initBranch(){
     fclose(f);
 }
 
+
+
+/*
+ * Function: branchExists
+ * =========================
+ * Verifie l'existence de la branche (branch).
+ * 
+ * returns: 1 si la branche existe.
+ *          0 sinon.
+ */
 
 int branchExists(char *branch){
     char buff[1000];
@@ -46,6 +64,15 @@ int branchExists(char *branch){
 }
 
 
+
+/*
+ * Function: createBranch
+ * =========================
+ * Cree une reference appelee (branch), qui pointe vers le meme commit que la reference HEAD.
+ * 
+ * returns: void.
+ */
+
 void createBranch(char *branch){
     char *hash = getRef("HEAD");
     createUpdateRef(branch, hash);
@@ -53,6 +80,15 @@ void createBranch(char *branch){
     if (hash != NULL) free(hash);
 }
 
+
+
+/*
+ * Function: getCurrentBranch
+ * =============================
+ * Lit le fichier cache .current_branch pour retourner le nom de la branche courante.
+ * 
+ * returns: la chaine de caracteres contenant le nom de la branche courante.
+ */
 
 char* getCurrentBranch(){
     FILE *f = fopen(".current_branch", "r");
@@ -73,8 +109,22 @@ char* getCurrentBranch(){
 }
 
 
+
+/*
+ * Function: printBranch
+ * ========================
+ * Parcourt la branche (branch), et pour chacun de ses commits, affiche son hash et son message descriptif (s'il en existe un).
+ * 
+ * returns: void.
+ */
+
 void printBranch(char *branch){
     char *c_hash = getRef(branch);
+    if(c_hash == NULL){
+        printf("Aucun commit sur %s\n", branch);
+        return;
+    }
+
     char *path_hash = hashToPath(c_hash);
 
     int size = strlen(path_hash) + 13;
@@ -114,6 +164,17 @@ void printBranch(char *branch){
 }
 
 
+
+/*
+ * Function: branchList
+ * =======================
+ * Construit et retourne une liste chainee contenant le hash de tous les commits de la branche (branch).
+ * 
+ * note: On parcourt une branche à l'aide de la cle "predecessor".
+ * 
+ * returns: la liste chainee contenant les hash (seulement branch).
+ */
+
 List *branchList(char *branch){
     List *l = initList();
 
@@ -149,6 +210,15 @@ List *branchList(char *branch){
     return l;
 }
 
+
+
+/*
+ * Function: getAllCommits
+ * ==========================
+ * Renvoie la liste des hash des commits de TOUTES les branches (sans répétition).
+ * 
+ * returns: la liste chainee des hash (toutes les branches)
+ */
 
 List *getAllCommits(){
     List *l = initList();
@@ -190,8 +260,20 @@ List *getAllCommits(){
 }
 
 
+
 //============================================================================
 
+
+
+/*
+ * Function: restoreCommit
+ * ==========================
+ * Restaure le WorkTree associe à un commit dont le hash (hash_commit) est donne en parametre.
+ * 
+ * note: Il faut utiliser la fonction restoreWorkTree.
+ * 
+ * returns: void.
+ */
 
 void restoreCommit(char *hash_commit){
     char *path_hash = hashToPath(hash_commit);
@@ -229,6 +311,18 @@ void restoreCommit(char *hash_commit){
 }
 
 
+
+/*
+ * Function: myGitCheckoutBranch
+ * ================================
+ * Permet de naviguer entre les branches, plus particulièrement pour aller dans la branche (branch).
+ *      - On modifie le fichier .current_branch pour contenir le nom de la branche (branch).
+ *      - On modifie la rererence HEAD pour contenir le hash du dernier commit de branch.
+ *      - On restaure le WorkTree correspondant au dernier commit de branch.
+ * 
+ * returns: void.
+ */
+
 void myGitCheckoutBranch(char *branch){
     FILE *f = fopen(".current_branch", "w");
     if(f == NULL){
@@ -240,12 +334,22 @@ void myGitCheckoutBranch(char *branch){
     fclose(f);
 
     char *c_hash = getRef(branch);
-    if(c_hash == NULL) printf("hey hey %s\n", branch);
     createUpdateRef("HEAD", c_hash);
-    restoreCommit(c_hash);
-    free(c_hash);
+    if(c_hash != NULL){
+        restoreCommit(c_hash);
+        free(c_hash);
+    }
 }
 
+
+
+/*
+ * Function: filterList
+ * =======================
+ * Retourne une nouvelle liste contenant uniquement les elements de la liste (l) qui commencent par la chaine de caracteres (pattern).
+ * 
+ * returns: une liste d'elements, filtres par pattern, de la liste l.
+ */
 
 List *filterList(List *l, char *pattern){
     List *list_filter = initList();
@@ -267,6 +371,20 @@ List *filterList(List *l, char *pattern){
 }
 
 
+
+/*
+ * Function: myGitCheckoutCommit
+ * ================================
+ * Permet de retourner sur n'importe quelle version du projet grace aux premiers caracteres du hash d'un commit (pattern).
+ *      - On recupere la liste de tous les commits existants.
+ *      - On filtre cette liste pour ne garder que ceux qui commencent par pattern.
+ *      - S'il ne reste plus qu'un seul hash après ce filtre, on met a jour la reference HEAD pour pointer sur ce hash, et on restaure le WorkTree correspondant.
+ *      - S'il reste plusieurs hash après ce filtre, on les affiche tous et on demande a l'utilisateur de preciser sa requete.
+ *      - Sinon, s'il en reste aucun, on affiche un message d'erreur.
+ * 
+ * returns: void.
+ */
+
 void myGitCheckoutCommit(char *pattern){
     List *l = getAllCommits();
     List *list_filter = filterList(l, pattern);
@@ -285,7 +403,7 @@ void myGitCheckoutCommit(char *pattern){
         }
 
         else {
-            printf("Plusieurs correspondances trouvées :\n");
+            printf("Plusieurs correspondances trouvées, précisez votre requête :\n");
             while(c != NULL){
                 printf("   -> %s\n", c->data);
                 c = c->next;

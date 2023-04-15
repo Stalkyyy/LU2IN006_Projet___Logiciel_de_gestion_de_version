@@ -10,15 +10,16 @@
 #include "../branch/branch.h"
 #include "fusion.h"
 
-//==================================================================================================
 
 /*
- * Exercice 11 - Une première méthode de fusion. (11.1 - 11.2)
+ * Function: mergeWorkTrees
+ * ===========================
+ * Etant donne les WorkTrees (wt1) et (wt2) :
+ *      - cree une liste (conflicts) de chaines de caracteres composee des noms de fichiers/repertoires qui sont en conflit.
+ *      - cree un nouveau WorkTree compose des fichiers/repertoires qui ne sont pas en conflit.
+ * 
+ * returns: le nouveau WorkTree (non-conflits).
  */
-
-//==================================================================================================
-
-
 
 WorkTree* mergeWorkTrees(WorkTree *wt1, WorkTree *wt2, List **conflicts){
     *conflicts = NULL; 
@@ -47,6 +48,17 @@ WorkTree* mergeWorkTrees(WorkTree *wt1, WorkTree *wt2, List **conflicts){
 }
 
 
+
+/*
+ * Function: branch_To_Commit_WorkTree
+ * ======================================
+ * Permet de creer le commit (c_vide) et le WorkTree (wt_vide) correspondant a la branche (br).
+ * 
+ * note: Non-demande par le projet, on l'a ajoute pour se faciliter la fonction merge.
+ * 
+ * returns: void.
+ */
+
 void branch_To_Commit_WorkTree(char *br, Commit **c_vide, WorkTree **wt_vide){
     char path[80];
 
@@ -65,6 +77,23 @@ void branch_To_Commit_WorkTree(char *br, Commit **c_vide, WorkTree **wt_vide){
     free(hash_c); free(path_hash_c); free(hash_wt); free(path_hash_wt);
 }
 
+
+
+/*
+ * Function: merge
+ * ==================
+ * Fusionne la branche courante avec la branche (remote_branch) si aucun conflit n'existe. Dans ce cas :
+ *      - Cree le WorkTree de fusion (avec la fonction mergeWorkTrees)
+ *      - Creer le commit associe à ce nouveau WorkTree, en indiquant qui sont ses predecesseurs, et en lui ajoutant le message descriptif passe en parametre.
+ *      - Realiser un enregistrement instantane du WorkTree de fusion et de ce nouveau commit
+ *      - Ajouter le nouveau commit a la branche courante.
+ *      - Mettre a jour la reference de la branche courante et la reference HEAD pour pointer vers ce nouveau commit.
+ *      - Supprimer la reference de la branche passee en parametre.
+ *      - Restaurer le projet correspondant au WorkTree de fusion.
+ * 
+ * returns: NULL si aucun conflit existe. 
+ *          Sinon, on renvoit la liste des conflits obtenue avec la fonction merge WorkTrees.
+ */
 
 List* merge(char *remote_branch, char *message){
     char *current_branch = getCurrentBranch();

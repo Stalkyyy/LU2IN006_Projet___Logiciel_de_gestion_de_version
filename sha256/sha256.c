@@ -5,11 +5,22 @@
 #include "sha256.h"
 #include "../cellList/cellList.h"
 
+//============================================================================================
+
+
+/*
+ * Function: hashFile
+ * =====================
+ * Recupere le hash du fichier (source) et l'ecrit dans le fichier (dest).
+ * 
+ * returns: 0 si tout se passe bien.
+ */
+
 int hashFile(char* source, char* dest){
     char linuxCommand[256];
 
     /*
-     * Ecriture de la commande utilisée.
+     * Ecriture de la commande utilisee.
      * Ici, on appelle sha256sum sur le fichier source. 
      * Ensuite on coupe la sortie, on ne veut que le hash, pas le nom du fichier !
      */
@@ -24,9 +35,20 @@ int hashFile(char* source, char* dest){
 }
 
 
+//============================================================================================
+
+
+/*
+ * Function: sha256file
+ * =======================
+ * Renvoie le hash du fichier (file).
+ * 
+ * returns: Chaine de caractere (hash du fichier)
+ */
+
 char* sha256file(char* file){
     /* 
-     * Création du fichier temporaire 
+     * Creation du fichier temporaire 
      */
 
     if(!file_exists(".tmp")){
@@ -40,7 +62,7 @@ char* sha256file(char* file){
 
 
     /*
-     * Création de la commande Linux et ensuite son exécution.
+     * Creation de la commande Linux et ensuite son execution.
      */
     char linuxCommand[2048];
     snprintf(linuxCommand, 2048, "sha256sum %s | cut -d ' ' -f 1 > %s", file, tempName);

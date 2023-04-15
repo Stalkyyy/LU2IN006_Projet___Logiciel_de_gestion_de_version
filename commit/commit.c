@@ -10,6 +10,15 @@
 #include "../cellList/cellList.h"
 #include "../work_FileTree/work_FileTree.h"
 
+
+/*
+ * Function: createKeyVal
+ * =========================
+ * Alloue et initialise un element du type key_value_pair avec sa key et son val.
+ * 
+ * returns: l'element kvp.
+ */
+
 kvp* createKeyVal(char *key, char *val){
     kvp* kv = (kvp*)(malloc(sizeof(kvp)));
     if(kv == NULL){
@@ -23,6 +32,16 @@ kvp* createKeyVal(char *key, char *val){
     return kv;
 }
 
+
+
+/*
+ * Function: freeKeyVal
+ * =======================
+ * Libère l'element (kv) de type key_value_pair
+ * 
+ * returns: void.
+ */
+
 void freeKeyVal(kvp *kv){
     if(kv->key) free(kv->key);
     if(kv->value) free(kv->value);
@@ -30,13 +49,35 @@ void freeKeyVal(kvp *kv){
 }
 
 
-char* kvts(kvp *k){
-    int size = strlen(k->key) + strlen(k->value) + 2;
-    char *str = (char*)malloc(sizeof(char) * (size));
 
-    snprintf(str, size, "%s:%s", k->key, k->value);
+/*
+ * Function : kvts
+ * ==================
+ * Convertit un element (k) en une chaine de caracteres de la forme "key:value".
+ * 
+ * returns: le chaine representant l'element.
+ */
+
+char* kvts(kvp *k){
+    int size = 2;
+    if(k->key) size += strlen(k->key);
+    if(k->value) size += strlen(k->value);
+    char *str = (char*)malloc(sizeof(char) * size);
+
+    snprintf(str, size, "%s:%s", k->key ? k->key : "", k->value ? k->value : "");
     return str;
 }
+
+
+
+
+/*
+ * Function : stkv
+ * =================
+ * Convertit une chaine de caracteres (str) representant un element en un element.
+ * 
+ * returns: l'element represente par la chaine.
+ */
 
 kvp* stkv(char *str){
     int pos = -1;
@@ -72,6 +113,14 @@ kvp* stkv(char *str){
 
 
 
+/*
+ * Function: initCommit
+ * =======================
+ * Alloue et initialise un Commit de taille fixee par la constante MAX_SIZE_COMMIT.
+ * 
+ * returns: le Commit initialise.
+ */
+
 Commit* initCommit(){
     Commit *c = (Commit*)malloc(sizeof(Commit));
     if(c == NULL){
@@ -94,6 +143,16 @@ Commit* initCommit(){
     return c;
 }
 
+
+
+/*
+ * Function: freeCommit
+ * =======================
+ * Libère le commit (c).
+ * 
+ * returns: void.
+ */
+
 void freeCommit(Commit *c){
     for(int i = 0; (i < c->size) && (c->n > 0); i++){
         if(c->T[i] != NULL){
@@ -107,8 +166,15 @@ void freeCommit(Commit *c){
 }
 
 
+
 /*
- * Choix de la fonction de hachage : sdbm.
+ * Function: hash_sdbm
+ * ======================
+ * Fonction de hashage choisi : sdbm
+ * Il est efficace pour brouiller les bits, entrainant une meilleure distribution des cles et moins de fractionnements.
+ * Il s'agit egalement d'une bonne fonction de hachage generale avec une bonne distribution.
+ * 
+ * returns: unsigned long etant le hash de la chaine de caractere (str).
  */
 
 unsigned long hash_sdbm(char *str){
@@ -119,6 +185,15 @@ unsigned long hash_sdbm(char *str){
     return hash;
 }
 
+
+
+/*
+ * Function: commitSet
+ * ======================
+ * Insere la paire (key, value) dans le commit (c), en gerant les collisions par adressage ouvert et probing lineaire.
+ * 
+ * returns: void.
+ */
 
 void commitSet(Commit *c, char *key, char *value){
     if(c->n >= c->size){
@@ -140,10 +215,18 @@ void commitSet(Commit *c, char *key, char *value){
     }
 }
 
+
+
 /*
- * Rajout de cette fonction. Même fonctionnement que commitSet mais prend directement un kvp en paramètre.
- * Fonction utilisée pour stc.
+ * Function: commitSet
+ * ======================
+ * Insere l'element (kv) dans le commit (c), en gerant les collisions par adressage ouvert et probing lineaire.
+ * 
+ * note: Utilise uniquement dans la fonction stc. C'est la meme fonction que commitSet, a la difference qu'on a pas a alloue un nouvel element.
+ * 
+ * returns: void.
  */
+
 void commitSet_KV(Commit *c, kvp *kv){
     if(c->n >= c->size){
         printf("Le tableau est déjà rempli !\n");
@@ -163,12 +246,31 @@ void commitSet_KV(Commit *c, kvp *kv){
 }
 
 
+
+/*
+ * Function: createCommit
+ * =========================
+ * Alloue et initialise un Commit, puis ajoute l'element obligatoire (hash) correspondant a la cle "tree".
+ * 
+ * returns: le Commit initialise.
+ */
+
 Commit* createCommit(char *hash){
     Commit *c = initCommit();
     commitSet(c, "tree", hash);
     return c;
 }
 
+
+
+/*
+ * Function: commitGet
+ * ======================
+ * Cherche dans le commit (c) s'il existe un element dont la cle est key (en sachant que les conflits sont resolus par adressage ouvert et probing lineaire).
+ * 
+ * returns: La valeur de l'element s'il existe.
+ *          Sinon NULL.
+ */
 
 char* commitGet(Commit *c, char *key){
     unsigned long hash = hash_sdbm(key) % c->size;
@@ -187,6 +289,18 @@ char* commitGet(Commit *c, char *key){
 }
 
 
+
+/*
+ * Function: tailleCommitHash_STR
+ * =================================
+ * Renvoie la taille necessaire pour stocker dans une chaine de caractere les kvp du commit (c).
+ *      - chaine du type "key1:value1\nkey2:value2\n..."
+ * 
+ * note: rajout de cette fonction non-demandee pour la fonction cts.
+ * 
+ * returns: la taille.
+ */
+
 int tailleCommitHash_STR(Commit *c){
     int taille = 0;
     int nbKvp = c->n;
@@ -199,6 +313,16 @@ int tailleCommitHash_STR(Commit *c){
 
     return taille;
 }
+
+
+
+/*
+ * Function: cts
+ * ================
+ * Convertit le commit (c) en une chaine de caracteres composee des chaines representant chacun de ses couples (key, value) separees par un saut de ligne.
+ * 
+ * returns: la chaine de caracteres du type "key1:value1\nkey2:value2\n..."
+ */
 
 char* cts(Commit *c){
     char *str = (char*)malloc(sizeof(char) * (tailleCommitHash_STR(c) + 1));
@@ -218,6 +342,16 @@ char* cts(Commit *c){
     return str;
 }
 
+
+
+/*
+ * Function: stc
+ * ================
+ * Convertit une chaine de caracteres (ch) representant un Commit en Commit.
+ * 
+ * returns: le Commit represente par la chaine.
+ */
+
 Commit* stc(char *ch){
     Commit *c = initCommit();
     char *tok = strtok(ch, "\n");
@@ -231,6 +365,15 @@ Commit* stc(char *ch){
     return c;
 }
 
+
+
+/*
+ * Function: ctf
+ * ================
+ * Ecrit dans le fichier (file) la chaine de caractere representant le commit (c).
+ * 
+ * returns: void.
+ */
 
 void ctf(Commit *c, char *file){
     char *str = cts(c);
@@ -246,6 +389,16 @@ void ctf(Commit *c, char *file){
     free(str);
     fclose(f);
 }
+
+
+
+/*
+ * Function: ftc
+ * ================
+ * Charge un commit grace au fichier (file) le representant.
+ * 
+ * returns: Le commit represente par file.
+ */
 
 Commit* ftc(char *file){
     Commit *c = initCommit();
@@ -266,6 +419,17 @@ Commit* ftc(char *file){
     return c;
 }
 
+
+
+/*
+ * Function: blobCommit
+ * =======================
+ * Cree un fichier temporaire representant le commit (c) pour pouvoir ensuite creer l'enregistrement instantane du commit avec l'extension ".c".
+ * 
+ * note: meme procede que pour la fonction blobWorkTree.
+ * 
+ * returns: le hash du fichier temporaire.
+ */
 
 char* blobCommit(Commit *c){
     /*
@@ -324,8 +488,18 @@ char* blobCommit(Commit *c){
 }
 
 
+
 //=====================================================================
 
+
+
+/*
+ * Function: initRefs
+ * =====================
+ * Cree le repertoire cache .refs s'il n'existe pas deja, puis cree les fichiers master et HEAD (vides).
+ * 
+ * returns: void.
+ */
 
 void initRefs(){
     if (!file_exists(".refs")){
@@ -335,6 +509,16 @@ void initRefs(){
     }
 }
 
+
+
+/*
+ * Function: createUpdateRef
+ * ============================
+ * Met a jour une reference (ref_name) en remplacant son contenu par hash.
+ * Si la reference n'existe pas la fonction commence par creer le fichier.
+ * 
+ * returns: void.
+ */
 
 void createUpdateRef(char *ref_name, char *hash){
     initRefs(); // Vérifie si le répertoire .refs/ existe. Le crée si besoin.
@@ -360,6 +544,15 @@ void createUpdateRef(char *ref_name, char *hash){
 }
 
 
+
+/*
+ * Function: deleteRef
+ * ======================
+ * Supprime la reference (ref_name) si elle existe.
+ * 
+ * returns: void.
+ */
+
 void deleteRef(char *ref_name){
     char *buff = (char *)malloc(sizeof(char) * (strlen(ref_name) + 10));
     if(buff == NULL){
@@ -379,6 +572,17 @@ void deleteRef(char *ref_name){
     free(buff);
 }
 
+
+
+/*
+ * Function: getRef
+ * ===================
+ * Recupere vers quoi pointe la reference (ref_name), c'est a dire le hash contenu dans le fichier.
+ * 
+ * returns: Le hash pointe par la reference.
+ *          "" s'il la reference est vide.
+ *          NULL si la reference n'existe pas.
+ */
 
 char* getRef(char *ref_name){
     char *buff = (char *)malloc(sizeof(char) * (strlen(ref_name) + 7));
@@ -424,8 +628,19 @@ char* getRef(char *ref_name){
 }
 
 
+
 //=====================================================================
 
+
+
+/*
+ * Function: myGitAdd
+ * =====================
+ * Permet a l'utilisateur d'ajouter un fichier ou un repertoire (file_or_folder) dans le WorkTree correspondant à la zone de preparation (ici le .add).
+ * Si le fichier ".add" n'existe pas, il le cree.
+ * 
+ * returns: void.
+ */
 
 void myGitAdd(char *file_or_folder){
     WorkTree *wt;

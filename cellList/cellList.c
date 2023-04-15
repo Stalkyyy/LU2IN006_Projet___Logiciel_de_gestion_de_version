@@ -6,6 +6,15 @@
 #include "cellList.h"
 #include "../sha256/sha256.h"
 
+
+/*
+ * Function: initList
+ * =======================
+ * Initialise une liste vide.
+ * 
+ * returns: la nouvelle liste initialisee vide.
+ */
+
 List* initList(){
     List* l = (List *)malloc(sizeof(List));
     if (l == NULL){
@@ -17,6 +26,18 @@ List* initList(){
     return l;
 }
 
+
+
+/*
+ * Function: buildCell
+ * ======================
+ * Initialise une nouvelle cellule avec son data (ch) en parametre.
+ * 
+ * ch: Chaine de caractere supposee être le data de la cellule.
+ *     Si la chaine est nulle, alors le data le sera aussi.
+ * 
+ * returns: La nouvelle cellule initialisee.
+ */
 
 Cell* buildCell(char* ch){
     Cell *c = (Cell *)malloc(sizeof(Cell));
@@ -31,14 +52,32 @@ Cell* buildCell(char* ch){
 }
 
 
+
+/*
+ * Function: insertFirst
+ * ========================
+ * Insere en debut de liste (l) une cellule (c).
+ * 
+ * returns: void.
+ */
+
 void insertFirst(List *l, Cell* c){
     c->next = *l;
     *l = c;
 }
 
+
+
 /*
- *Rajout de cette fonction pour stol.
+ * Function: insertLast
+ * ========================
+ * Insere en fin de liste (l) une cellule (c).
+ * 
+ * note: Cette fonction n'est pas demandee, on l'a faite pour la fonction stol. Nous ne savions pas si l'ordre importait a l'epoque.
+ * 
+ * returns: void.
  */
+
 void insertLast(List *l, Cell *c){
     Cell *c_list = *l;
 
@@ -53,16 +92,30 @@ void insertLast(List *l, Cell *c){
 }
 
 
+
+/*
+ * Function: ctos
+ * =================
+ * Retourne le data de la cellule (c) si elle n'est pas nulle. Sinon on renvoie NULL.
+ */
 char* ctos(Cell *c){
-    return c->data;
+    if(c != NULL)
+        return c->data;
+    return NULL;
 }
 
 
+
 /*
- * Renvoie la somme des tailles des chaines de caractères de chaque cellule composant la liste L.
- * La taille comprend le caractère de fin '\0'. 
- * En effet, dans notre fonction ltos(), on le remplacera par le caractère '|', ou on gardera '\0'.
+ * Function: sizeCharList
+ * =========================
+ * Permet de recuperer la taille necessaire pour la chaine de la fonction ltos.
+ * 
+ * returns: Renvoie la somme des tailles des data de chaque cellule de la liste L.
+ *          La taille comprend le caractere de fin '\0' de chaque data.
+ *          En effet, dans notre fonction ltos, on le remplacera par le caractere '|' ou on le gardera.
  */
+
 int sizeCharList(List* L){
     Cell *c = *L;
     int size = 0;
@@ -75,6 +128,15 @@ int sizeCharList(List* L){
     return size;
 }
 
+
+
+/*
+ * Function: ltos
+ * =================
+ * Transforme une liste (L) de chaine de caractere dans le format suivant : chaine1|chaine2|...
+ * 
+ * returns: la chaine de caractere chaine1|chaine2|... suivant le nombre de data present.
+ */
 
 char* ltos(List* L){
     Cell *c = *L;
@@ -92,6 +154,15 @@ char* ltos(List* L){
 }
 
 
+
+/*
+ * Function: listGet
+ * ====================
+ * Renvoie le i-eme element d'une liste (L).
+ * 
+ * returns: La cellule representant le i-eme element de la liste. S'il n'existe pas, NULL.
+ */
+
 Cell* listGet(List* L, int i){
     Cell *c = *L;
     int j = 1;
@@ -104,6 +175,16 @@ Cell* listGet(List* L, int i){
     return c;
 }
 
+
+
+/*
+ * Function: searchList
+ * =======================
+ * Recherche un element dans une liste (L) a partir de son contenu (str).
+ * 
+ * returns: Une reference vers la cellule si l'element est trouvee.
+ *          Sinon, NULL.
+ */
 
 Cell* searchList(List *L, char *str){
     Cell *c = *L;
@@ -118,10 +199,18 @@ Cell* searchList(List *L, char *str){
 }
 
 
+
 /*
- * Modification, nous avons rajouté un délimiteur dans les paramètres, étant donné que l'énoncé ne donne aucune précision de comment découper la chaine de caractères.
- * De plus, on utilise la fonction insertLast() afin que le premier élément de la chaine s soit en première position de la liste.
+ * Function: stol
+ * =================
+ * Transforme une chaine de caracteres de la forme chaine1|chaine2|... (s) representant une liste en une liste chainee.
+ * 
+ * note : Nous avons rajoute un delimiteur dans les parametres, etant donne que l'enonce ne donne aucune precision de comment decouper la chaine de caracteres.
+ *        On utilise la fonction insertLast() afin que le premier element de la chaine s soit en premiere position de la liste.
+ * 
+ * returns: la liste representant le chaine de caractere.
  */
+
 List* stol(char* s, char* delim){
     List *l = initList();
     char *ptr = strtok(s, delim);
@@ -135,6 +224,15 @@ List* stol(char* s, char* delim){
     return l;
 }
 
+
+
+/*
+ * Function: ltof
+ * =================
+ * Ecris une liste (L) dans un fichier (path).
+ * 
+ * returns: void.
+ */
 
 void ltof(List *L, char *path){
     FILE *f = fopen(path, "w");
@@ -152,6 +250,15 @@ void ltof(List *L, char *path){
     fclose(f);
 }
 
+
+
+/*
+ * Function: ftol
+ * =================
+ * Creer une liste representant la liste enregistree dans le fichier (path).
+ * 
+ * returns: la liste representee par le fichier (path).
+ */
 
 List* ftol(char *path){
     FILE *f = fopen(path, "r");
@@ -173,6 +280,15 @@ List* ftol(char *path){
 }
 
 
+
+/*
+ * Function: freeList
+ * =====================
+ * Libere la liste (l).
+ * 
+ * returns: void.
+ */
+
 void freeList(List *l){
     Cell *c = *l;
     Cell *temp;
@@ -189,6 +305,14 @@ void freeList(List *l){
 
 //==================================================================================================
 
+
+/*
+ * Function: listdir
+ * ====================
+ * Renvoie une liste contenant les noms des fichiers et repertoires presents dans le chemin (root_dir).
+ * 
+ * returns: une liste de fichiers et repertoires.
+ */
 
 List* listdir(char* root_dir){
     DIR* dp = opendir(root_dir);
@@ -211,6 +335,16 @@ List* listdir(char* root_dir){
     return l;
 }
 
+
+
+/*
+ * Function: file_exists
+ * ========================
+ * Verifie si le fichier (file) existe dans le repertoire courant.
+ * 
+ * returns: 1 s'il existe, 0 sinon.
+ */
+
 int file_exists(char *file){
     char *cur_dir;
     cur_dir=(char *)malloc(1000*sizeof(char));
@@ -221,7 +355,7 @@ int file_exists(char *file){
     char *dirFile = strrchr(file, '/');
 
     /*
-     * Ici, on crée une chaine de caractère ayant le pwd + le chemin vers un fichier. 
+     * Ici, on cree une chaine de caractere ayant le pwd + le chemin vers un fichier. 
      * Par exemple, si file == "/tmp/test/file.c", on ouvrira pwd + /tmp/test
      */
     if(dirFile != NULL){
@@ -252,6 +386,16 @@ int file_exists(char *file){
     free(cur_dir);
     return 0;
 }
+
+
+
+/*
+ * Function: cp
+ * ===============
+ * Copie le contenu du fichier (to) s'il existe dans le fichier (from).
+ * 
+ * returns: void.
+ */
 
 void cp(char *to, char *from){
     if(!file_exists(from)){
@@ -284,6 +428,17 @@ void cp(char *to, char *from){
     fclose(fdest);
 }
 
+
+
+/*
+ * Function: hashToPath
+ * =======================
+ * Renvoie le chemin d'un fichier a partir de son hash (hash).
+ * On rappelle que le chemin s'obtient en inserant un '/' entre le 2e et le 3e caractere du hash.
+ * 
+ * returns: la chaine de caractere du chemin qui represente le hash.
+ */
+
 char* hashToPath(char* hash){
     char *path = (char*)malloc(sizeof(char)*(strlen(hash)+2));
     if(path == NULL){
@@ -295,6 +450,15 @@ char* hashToPath(char* hash){
     return path;
 }
 
+
+
+/*
+ * Function: blobFile
+ * =====================
+ * Enregistre un instantane du fichier (file).
+ * 
+ * returns: void.
+ */
 
 void blobFile(char* file){
     char rep[13];
@@ -308,9 +472,10 @@ void blobFile(char* file){
     }
 
     char *path = hashToPath(hash);
-    char* hashFileName = malloc(sizeof(char)*(strlen(path)+11));
+    int size = strlen(path)+11;
+    char* hashFileName = malloc(sizeof(char)*size);
 
-    snprintf(hashFileName, strlen(path)+11, ".autosave/%s", path);
+    snprintf(hashFileName, size, ".autosave/%s", path);
     cp(hashFileName,file);
 
 
