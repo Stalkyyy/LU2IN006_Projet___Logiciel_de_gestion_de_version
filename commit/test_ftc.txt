@@ -1,0 +1,5 @@
+test_ftc1:Réussi ? 1
+test_ftc2:Réussi ? 2
+test_ftc3:Réussi ? 3
+test_ftc4:Réussi ? 4
+test_ftc5:Réussi ? 5

@@ -1,6 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
+#include <unistd.h>
+
 #include "work_FileTree.h"
 #include "../sha256/sha256.h"
 #include "../cellList/cellList.h"
@@ -61,7 +64,39 @@ int main(){
     free(str);
     freeWorkTree(wt3);
     freeWorkTree(wt2);
-    freeWorkTree(wt);
+    
 
+    //===============================================================================
+
+
+    char *hashTree = blobWorkTree(wt);
+    printf("%s\n", hashTree);
+    free(hashTree);
+
+    freeWorkTree(wt);
+    
+
+
+
+
+    WorkTree *wtTest = initWorkTree();
+    
+    //appendWorkTree(wtTest, "work_FileTree/Makefile", NULL, 0);
+    //appendWorkTree(wtTest, "work_FileTree/work_FileTree.c", NULL, 0);
+    //appendWorkTree(wtTest, "work_FileTree/work_FileTree.h", NULL, 0);
+    //appendWorkTree(wtTest, "work_FileTree/work_FileTreeTest.c", NULL, 0);
+
+    char *hashTree2 = saveWorkTree(wtTest, "./");
+
+    system("rm -r test_SaveWorkTree");
+
+    // Pour vérifier la suppression du répertoire test.
+    sleep(3);
+
+    restoreWorkTree(wtTest, "./");
+    freeWorkTree(wtTest);
+    free(hashTree2);
+    
+    
     return 0;
 }

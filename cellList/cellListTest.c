@@ -102,7 +102,7 @@ int main(){
 
     printf("\n");
 
-    List* test = listdir("/home/deniz");
+    List* test = listdir("/home/stalky/Documents/Sorbonne/LU2IN006-Projet/cellList");
 	ltof(test, "test_listdir.txt");
 
 	printf("%d\n", file_exists("cellLt.c"));

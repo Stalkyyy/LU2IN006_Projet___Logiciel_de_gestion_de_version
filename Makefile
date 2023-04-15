@@ -1,12 +1,13 @@
 CC = gcc
 CFLAGS = -Wall -ggdb
 
-OBJFILES_MAIN = main.o ./sha256/sha256.o ./cellList/cellList.o
+OBJFILES_MYGIT = myGit.o ./sha256/sha256.o ./cellList/cellList.o ./work_FileTree/work_FileTree.o ./commit/commit.o ./branch/branch.o ./fusion/fusion.o
 
-all : main_test
+all : myGit
 
-main_test : $(OBJFILES_MAIN)
-	$(CC) $(CFLAGS) -o main_test $(OBJFILES_MAIN)
+myGit : $(OBJFILES_MYGIT)
+	$(CC) $(CFLAGS) -o myGit $(OBJFILES_MYGIT)
 
 clean : 
-	rm -f $(OBJFILES_MAIN) $(OBJFILES_SHA256) $(OBJFILES_CELLIST) main_test sha256_test cellList_test hash_sha256Test.txt
+	rm -f $(OBJFILES_MYGIT) $(OBJFILES_SHA256) $(OBJFILES_CELLIST) myGit .add .current_branch
+	rm -r .refs .tmp .autosave
