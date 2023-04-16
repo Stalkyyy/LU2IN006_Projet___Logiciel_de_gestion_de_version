@@ -1,4 +1,4 @@
-Projet : Création d'un logiciel de gestion de version
+Projet : Création d'un logiciel de gestion de versions
 --- 
 
 **Binôme (L2 Mono-Info S4 GR6) :**
