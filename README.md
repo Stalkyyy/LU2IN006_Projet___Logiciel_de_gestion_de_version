@@ -9,6 +9,8 @@ Projet : Création d'un logiciel de gestion de versions
 
 Ce projet nous a été attribué en Structure de Données (LU2IN006), à Sorbonne Université Sciences (2022-2023)
 
+Note : 14/20
+
 --- 
 
 Ce projet consiste à réaliser un logiciel de gestion de versions, c’est-à-dire un outil permettant de créer et
